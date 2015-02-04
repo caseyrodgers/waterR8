@@ -1,0 +1,2 @@
+serviceClass: com.waterR8.gwt.event_list.client.EventListService
+path: B485AC706555E9F048C3E3BE3007E326.gwt.rpc

@@ -1,0 +1,1 @@
+mvn install:install-file -DgroupId=web4j -DartifactId=web4j -Dversion=4.10.0 -Dpackaging=jar -Dfile=web4j.jar -DgeneratePom=true

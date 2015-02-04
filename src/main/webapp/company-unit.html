@@ -1,0 +1,177 @@
+
+<!DOCTYPE html>
+<html lang="en"><!-- InstanceBegin template="/Templates/main.dwt" codeOutsideHTMLIsLocked="false" -->
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!-- InstanceBeginEditable name="doctitle" -->
+<title>Company Unit</title>
+<!-- InstanceEndEditable -->
+    <!-- Bootstrap core CSS -->
+    <link href="libs/bootstrap/bootstrap-3.3.2-dist/css/bootstrap.css" rel="stylesheet" >
+
+    <!-- Custom styles for this template -->
+    <link href="assets/css/dashboard.css" rel="stylesheet">
+    <link href="libs/bootstrap/bootstrap-3.3.2-dist/css/bootstrap-theme.min.css"  rel="stylesheet">
+    <link href="libs/jasny-bootstrap/css/jasny-bootstrap.min.css"  rel="stylesheet">
+    
+    <link href="css/wr8.css"  rel="stylesheet">    
+    <!-- InstanceBeginEditable name="head" -->
+<!-- InstanceEndEditable -->
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">WaterR8 Administration Console</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="companies.html">Companies</a></li>
+            <li><a href="settings.html">Settings</a></li>
+            <li><a href="profile.html">Profile</a></li>
+            <li><a href="help.html">Help</a></li>
+            <li><a href="#" onclick='doLogout()'>Logout</a></li>
+          </ul>
+          <!--
+          <form class="navbar-form navbar-right">
+            <input type="text" class="form-control" placeholder="Search...">
+          </form>
+          -->
+        </div>
+      </div>
+    </nav>
+    
+    <div class="row">  
+        <div class="span6">  
+            <ul class="breadcrumb">
+              <!-- InstanceBeginEditable name="BreadCrumb" -->
+				<li><a href='companies.html'>&lt;&lt;&nbsp;Companies</a></li>
+				<li><a href='javascript: history.go(-1)'>&lt;&lt;&nbsp;Complex</a></li>
+				<!-- InstanceEndEditable -->  
+            
+           </ul>  
+       </div>  
+    </div>  
+
+    <div class="container">
+      <!-- InstanceBeginEditable name="MainBody" -->
+		<h1 class="page-header"><span data-bind='text: companyName'></span> <span class='small'>Units</span></h1>
+
+		<div class="panel panel-default">
+			<div class="panel-body">
+				<div class="table-responsive">
+					<table class="table table-striped table-hover">
+						<thead>
+							<tr>
+								<th width="5%">#</th>
+								<th width="18%">Unit Number</th>
+								<th width="18%">Type</th>
+								<th width="18%">Beds</th>
+								<th width="18%">Tenants</th>										
+																
+						</thead>
+						<tbody data-bind="template: {foreach: units,  as: 'unit'}"
+							class="rowlink">
+							<tr data-bind="click: $root.rowClicked">
+								<td data-bind='text: unit.id'></td>
+								<td data-bind="text: unit.unitNumber"></td>
+                                <td data-bind="text: unit.type"></td>
+								<td data-bind="text: unit.beds"></td>
+                                <td data-bind="text: unit.tenants"></td>								
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+
+			</div>
+
+			<div class="panel-footer">
+				<button onclick='createComplex()'>Add Unit</button>
+			</div>
+		</div>
+
+		<div style='display: none' id='add-form-div'>
+
+			<div class="row">
+				<div class="col-md-12">
+					<form id='add-form' class="form-horizontal" action='#'
+						method='POST'>
+
+						<div class="form-group">
+							<label for="unitNumber" class="control-label col-xs-2">Unit Number</label>
+							<div class="col-xs-10">
+								<input type="text" class="form-control" name="unitNumber"
+									placeholder="Unit Number">
+							</div>
+						</div>
+						
+						<div class="form-group">
+							<label for="type" class="control-label col-xs-2">Type</label>
+							<div class="col-xs-10">
+								<input type="text" class="form-control" name="type"
+									placeholder="Type">
+							</div>
+						</div>			
+						
+						<div class="form-group">
+							<label for="beds" class="control-label col-xs-2">Beds</label>
+							<div class="col-xs-10">
+								<input type="text" class="form-control" name="beds"
+									placeholder="Beds">
+							</div>
+						</div>
+						
+						<div class="form-group">
+							<label for="tenants" class="control-label col-xs-2">Tenants</label>
+							<div class="col-xs-10">
+								<input type="text" class="form-control" name="tenants"
+									placeholder="Tenants">
+							</div>
+						</div>															
+
+					</form>
+
+
+				</div>
+			</div>
+
+		</div>
+
+
+		<!-- InstanceEndEditable -->
+    </div>
+
+  <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+	<script src='libs/jquery/jquery-1.11.0.min.js'></script>
+	<script src='libs/jquery-validation/jquery.validate.1.13.1.min.js'></script>    
+
+    <script src='libs/bootstrap/bootstrap-3.3.2-dist/js/bootstrap.min.js'></script>
+    <script src='libs/bootbox/bootbox.4.3.0.min.js'></script>
+	<script src='libs/knockout/knockout-3.2.0.min.js'></script>
+   	<script src='libs/jasny-bootstrap/js/jasny-bootstrap.min.js'></script>
+	<script src='js/wr8.js'></script>
+	<!-- InstanceBeginEditable name="AfterJsLoad" -->
+	<script src='js/company-unit.js'></script>
+	<script src='js/live.js'></script>
+	<!-- InstanceEndEditable -->
+    
+	
+  </body>
+<!-- InstanceEnd --></html>
+
+

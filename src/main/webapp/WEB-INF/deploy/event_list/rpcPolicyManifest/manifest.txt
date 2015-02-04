@@ -1,0 +1,3 @@
+# Module event_list
+# RPC service class, partial path of RPC policy file
+com.waterR8.gwt.event_list.client.EventListService, B485AC706555E9F048C3E3BE3007E326.gwt.rpc

@@ -1,0 +1,30 @@
+<!html>
+<head>
+</head>
+<body>
+
+	<button onclick='doIt()'>Do It</button>
+
+
+	<form data-bind="submit: addItem">
+		New item: <input
+			data-bind='value: itemToAdd, valueUpdate: "afterkeydown"' />
+		<button type="submit" data-bind="enable: itemToAdd().length > 0">Add</button>
+		<p>Your items:</p>
+		<select multiple="multiple" width="50" data-bind="options: items">
+		</select> <input
+			data-bind='value: helloView.hello, valueUpdate: "afterkeydown"' />
+		<p data-bind="text: helloView.hello"></p>
+	</form>
+	
+	<div data-bind="foreach: testItems">
+             <h1>for each item: <span data-bind='text: hello'></span>,<span data-bind='text: cnt'></span><span data-bind='text: $index'></span></h1>
+    </div>
+
+	<script src='libs/jquery/jquery-1.11.0.min.js'></script>
+	<script src='libs/knockout/knockout-3.2.0.min.js'></script>
+	<script src='js/wr8.js'></script>
+</body>
+
+
+</html>

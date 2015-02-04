@@ -1,0 +1,56 @@
+<!html>
+<head>
+</head>
+<body>
+
+	<button onclick='doIt()'>Do It</button>
+
+
+<form data-bind="submit: addItem">
+    New item:
+    <input data-bind='value: itemToAdd, valueUpdate: "afterkeydown"' />
+    <button type="submit" data-bind="enable: itemToAdd().length > 0">Add</button>
+    <p>Your items:</p>
+    <select multiple="multiple" width="50" data-bind="options: items"> </select>
+
+
+
+
+    <input data-bind='value: helloView.hello, valueUpdate: "afterkeydown"' />
+    <p data-bind="text: helloView.hello"></p>
+
+
+
+</form>
+
+
+	<script src='libs/knockout/knockout-3.2.0.min.js'></script>
+	<script>
+	    var _myModel;
+		function doIt() {
+			var HelloWorldModel = function() {
+				this.hello = new ko.observable('test test');
+			}
+
+			var SimpleListModel = function(items) {
+			    this.items = ko.observableArray(items);
+			    this.itemToAdd = ko.observable("");
+			    
+			    this.helloView = new HelloWorldModel();
+			    this.addItem = function() {
+			        if (this.itemToAdd() != "") {
+			            this.items.push(this.itemToAdd()); // Adds the item. Writing to the "items" observableArray causes any associated UI to update.
+			            this.itemToAdd(""); // Clears the text box, because it's bound to the "itemToAdd" observable
+			        }
+			    }.bind(this);  // Ensure that "this" is always this view model
+			};
+			ko.applyBindings(new SimpleListModel(["Alpha", "Beta", "Gamma"]));			
+			
+			
+
+		}
+	</script>
+</body>
+
+
+</html>
