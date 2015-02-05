@@ -8,6 +8,8 @@ public class SensorDetails {
 	Sensor sensor;
 	List<SensorEvent> events = new ArrayList<SensorEvent>();
 	private Company company;
+	Complex complex;
+	Unit unit;
 
 	public SensorDetails() {}
 	
@@ -37,5 +39,21 @@ public class SensorDetails {
 
 	public Company getCompany() {
 		return company;
+	}
+
+	public Complex getComplex() {
+		return complex;
+	}
+
+	public void setComplex(Complex complex) {
+		this.complex = complex;
+	}
+
+	public Unit getUnit() {
+		return unit;
+	}
+
+	public void setUnit(Unit unit) {
+		this.unit = unit;
 	}
 }

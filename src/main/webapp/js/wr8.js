@@ -47,3 +47,28 @@ function verifyDelete(thing, callback) {
 		}
 	});
 }
+
+
+function saveDataToServer(record, serverUrl, callbackOnComplete) {
+	var dataJson = JSON.stringify(record);
+	$.ajax({url: serverUrl, type: "POST", data: dataJson, error: _errorHandler})
+	.then(function(data) {
+		var pk=data.primaryKey;
+		callbackOnComplete(pk);
+	});
+}
+
+
+function doDeleteRecord(data, deleteUrl, callback) {
+	$.ajax({url: deleteUrl, error: _errorHandler})
+	.then(function(data) {
+		callback();
+	});
+}
+
+
+
+
+function _errorHandler(xObj, type, e) {
+	bootbox.alert("There was a problem talking with the server.  Your can try again or visit the Help page.");
+}

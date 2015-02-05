@@ -20,9 +20,17 @@ var _dataModel;
 function loadDataIntoModels(dataIn) {
 	 function MyViewModel(data) {
 		 this.sensors = ko.observableArray(data.sensors['@items']);
-		 this.companyName = data.company.companyName;
+		 this.company = data.company;
+		 this.complex = data.complex;
+		 this.unit = data.unit;
 		 this.rowClicked = function(x) {
 			 document.location.href='sensor-events.html?id=' + x.id;
+		 }
+		 this.deleteUnit = function(x) {
+			 verifyDelete('Unit', function() {
+				 doDeleteRecord(x, "/api/v1/unit/delete/" + _dataModel.unit.id, 
+						 function() { history.go(-1);});
+			 });
 		 }
 		 this.availableRoles  = ['Sensor', 'Repeater'];
 	 }
@@ -55,14 +63,17 @@ function createComplex() {
                 		var e = $('#add-form');
                 		
                 		if($('#add-form').valid()) {
-	                    	var data = {
+	                    	var sensorData = {
+	                    			unit: _dataModel.unit.id,
 	                    			role:$('[name=role]', e).val(),
 	                    			sensor:$('[name=sensor]', e).val()
 	                    	};
-	                    	
-	                    	_dataModel.sensors.push(data);
-	                    	
-	                    	bootbox.hideAll();
+	                    	var serverUrl = "/api/v1/sensor/add";
+	                    	saveDataToServer(sensorData, serverUrl, function(pk) {
+	                    		sensorData.id = pk;
+	                    		_dataModel.sensors.push(sensorData);
+		                    	bootbox.hideAll();
+                    		}); 
 	                    	return false;
                 		}
                 		else {

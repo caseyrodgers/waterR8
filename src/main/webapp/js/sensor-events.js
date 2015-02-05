@@ -10,7 +10,7 @@ function getData() {
 		return;
 	}
 	
-	$.ajax({url: "/api/v1/sensor/" + id})
+	$.ajax({url: "/api/v1/sensor/" + id, error: _errorHandler})
 	.then(function(data) {
 		loadDataIntoModels(data);
 	});
@@ -20,9 +20,19 @@ var _dataModel;
 function loadDataIntoModels(dataIn) {
 	 function MyViewModel(data) {
 		 this.events = ko.observableArray(data.events['@items']);
-		 this.companyName = data.company.companyName;
+		 this.sensor = data.sensor;
+		 this.company = data.company;
+		 this.complex = data.complex;
+		 this.unit = data.unit;
 		 this.rowClicked = function(x) {
 			 document.location.href='sensor-events.html?id=' + x.id;
+		 }
+		 this.deleteSensor = function() {
+			 verifyDelete('Sensor', function() {
+				 doDeleteRecord(_dataModel.sensor.id, "/api/v1/sensor/delete/" + _dataModel.sensor.id, function() {
+					 history.go(-1);	
+				 	});
+			 });
 		 }
 		 this.availableRoles  = ['Sensor', 'Repeater'];
 	 }

@@ -131,7 +131,7 @@ public class CompanyDao {
 				rs.getInt("building_count"),
 				rs.getString("construction_type"),
 				rs.getString("floor_type"), rs.getInt("lot_size"),
-				rs.getInt("floors"));		
+				rs.getInt("floors"), rs.getString("notes"));		
 	}
 
 	public ComplexDetails getComplexDetails(int id) throws Exception {
@@ -194,6 +194,7 @@ public class CompanyDao {
 			connection = ConnectionPool.getConnection();
 			UnitDetails details = new UnitDetails(getUnit(connection,id));
 			details.getSensors().addAll(getSensors(connection, id));
+			details.setComplex(getComplex(connection, details.getUnit().getComplex()));
 			details.setCompany(getCompanyForUnit(connection, details.getUnit().getId()));
 			
 			return details;
@@ -207,7 +208,7 @@ public class CompanyDao {
 		List<Sensor> sensors = new ArrayList<Sensor>();
 		PreparedStatement ps=null;
 		try {
-			String sql = "select * from sensor_assignment where  id = ?";
+			String sql = "select * from sensor_assignment where unit = ?";
 			ps = connection.prepareStatement(sql);
 			ps.setInt(1, id);
 			ResultSet rs = ps.executeQuery();
@@ -249,7 +250,9 @@ public class CompanyDao {
 			SensorDetails details = new SensorDetails(getSensor(connection, sensorId));
 			details.getEvents().addAll(getSensorEvents(connection, details.getSensor()));
 			Unit unit = getUnit(connection, details.getSensor().getUnit());
+			details.setUnit(unit);
 			details.setCompany(getCompanyForUnit(connection, unit.getId()));
+			details.setComplex(getComplex(connection, unit.getComplex()));
 			
 			return details;
 		} finally {
@@ -311,15 +314,17 @@ public class CompanyDao {
 				while(rs.next()) {
 					events.add(new SensorEvent(rs.getInt("id"), rs.getString("json")));
 				}
-				return events;
 			}
 			finally {
 				SqlUtilities.releaseResources(null,  ps,  null);
 			}
 		}
 		catch(Exception e) {
-			throw new Exception("Error extracting sensor serial number '" + sensor.getSensor() + "'", e);
+			e.printStackTrace();
+			//throw new Exception("Error extracting sensor serial number '" + sensor.getSensor() + "'", e);
 		}
+		
+		return events;
 	}
 
 	private Sensor getSensor(Connection connection, int id) throws Exception  {
@@ -391,6 +396,194 @@ public class CompanyDao {
 			SqlUtilities.releaseResources(null, ps, connection);
 		}		
 
+	}
+
+	public RecordOperation addComplex(Complex complex)  throws Exception {
+		
+		if(complex.getCompany() == 0) {
+			throw new Exception("Complex must have valid company specified");
+		}
+		
+		Connection connection = null;
+		PreparedStatement ps=null;
+		try {
+			connection = ConnectionPool.getConnection();
+			String sql = 
+					"insert into complex(company, complex_name, address, city, state, zip " +
+					", phone, email, building_count, construction_type, floor_type, lot_size " + 
+					" , floors, notes) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+			ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+			
+			ps.setInt(1, complex.getCompany());
+			ps.setString(2,  complex.getComplexName());
+			ps.setString(3, complex.getAddress());
+			ps.setString(4,  complex.getCity());
+			ps.setString(5, complex.getState());
+			ps.setString(6, complex.getZip());
+			ps.setString(7, complex.getPhone());
+			ps.setString(8, complex.getEmail());			
+			ps.setInt(9, complex.getBuildingCount());
+			ps.setString(10, complex.getConstructionType());
+			ps.setString(11, complex.getFloorType());
+			ps.setInt(12, complex.getLotSize());
+			ps.setInt(13, complex.getFloors());
+			ps.setString(14, complex.getNotes());
+			
+			
+			int cnt = ps.executeUpdate();
+			if(cnt != 1) {
+				throw new Exception("Company Complex record could not be added: " + complex);
+			}
+			ResultSet rs = ps.getGeneratedKeys();
+			
+			int complexId=-1;
+			if (rs.next()) {
+				complexId = rs.getInt(1);
+		    } else {
+		    	throw new Exception("Could not retreive new company complex id : " + complex);
+		    }
+			return new RecordOperation(CrudType.CREATE, complexId, null);
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}finally {
+			SqlUtilities.releaseResources(null, ps, connection);
+		}	
+		return null;
+	}
+	
+	public RecordOperation deleteComplex(int id) throws Exception {
+		Connection connection = null;
+		PreparedStatement ps=null;
+		try {
+			connection = ConnectionPool.getConnection();
+			String sql = "delete from complex where id = ?";
+			ps = connection.prepareStatement(sql);
+			ps.setInt(1,  id);
+			
+			int cnt = ps.executeUpdate();
+			String msg=cnt!=1?"Record not deleted":"";
+			return new RecordOperation(CrudType.DELETE, id, msg);
+			
+		} finally {
+			SqlUtilities.releaseResources(null, ps, connection);
+		}		
+	}
+
+	public RecordOperation addUnit(Unit unit)  throws Exception {
+		
+		if(unit.getComplex() == 0) {
+			throw new Exception("Unit must have valid complex specified");
+		}
+		
+		Connection connection = null;
+		PreparedStatement ps=null;
+		try {
+			connection = ConnectionPool.getConnection();
+			String sql = "insert into unit(complex,unit_number,type,beds,tenants)values(?,?,?,?,?)";
+			ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
+			ps.setInt(1, unit.getComplex());
+			ps.setString(2,  unit.getUnitNumber());
+			ps.setString(3, unit.getType());
+			ps.setInt(4,  unit.getBeds());
+			ps.setInt(5, unit.getTenants());
+			
+			int cnt = ps.executeUpdate();
+			if(cnt != 1) {
+				throw new Exception("Company Unit record could not be added: " + unit);
+			}
+			ResultSet rs = ps.getGeneratedKeys();
+			
+			int complexId=-1;
+			if (rs.next()) {
+				complexId = rs.getInt(1);
+		    } else {
+		    	throw new Exception("Could not retreive new company complex id : " + unit);
+		    }
+			return new RecordOperation(CrudType.CREATE, complexId, null);
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}finally {
+			SqlUtilities.releaseResources(null, ps, connection);
+		}	
+		return null;
+	}
+
+	public RecordOperation deleteUnit(int id) throws Exception {
+		Connection connection = null;
+		PreparedStatement ps=null;
+		try {
+			connection = ConnectionPool.getConnection();
+			String sql = "delete from unit where id = ?";
+			ps = connection.prepareStatement(sql);
+			ps.setInt(1,  id);
+			
+			int cnt = ps.executeUpdate();
+			String msg=cnt!=1?"Record not deleted":"";
+			return new RecordOperation(CrudType.DELETE, id, msg);
+			
+		} finally {
+			SqlUtilities.releaseResources(null, ps, connection);
+		}		
+	}
+
+	public RecordOperation addSensor(Sensor sensor)  throws Exception {
+		
+		if(sensor.getUnit() == 0) {
+			throw new Exception("Sensor must have valid Unit specified");
+		}
+		
+		Connection connection = null;
+		PreparedStatement ps=null;
+		try {
+			connection = ConnectionPool.getConnection();
+			String sql = "insert into sensor_assignment(unit,role,sensor)values(?,?,?)";
+			ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
+			ps.setInt(1, sensor.getUnit());
+			ps.setString(2,  sensor.getRole());
+			ps.setString(3, sensor.getSensor());
+			
+			int cnt = ps.executeUpdate();
+			if(cnt != 1) {
+				throw new Exception("Company Unit Sensor record could not be added: " + sensor);
+			}
+			ResultSet rs = ps.getGeneratedKeys();
+			
+			int newId=-1;
+			if (rs.next()) {
+				newId = rs.getInt(1);
+		    } else {
+		    	throw new Exception("Could not retreive new Sensor id : " + sensor);
+		    }
+			return new RecordOperation(CrudType.CREATE, newId, null);
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}finally {
+			SqlUtilities.releaseResources(null, ps, connection);
+		}	
+		return null;
+	}
+
+	public RecordOperation deleteSensor(int id) throws Exception {
+		Connection connection = null;
+		PreparedStatement ps=null;
+		try {
+			connection = ConnectionPool.getConnection();
+			String sql = "delete from sensor_assignment where id = ?";
+			ps = connection.prepareStatement(sql);
+			ps.setInt(1,  id);
+			
+			int cnt = ps.executeUpdate();
+			String msg=cnt!=1?"Record not deleted":"";
+			return new RecordOperation(CrudType.DELETE, id, msg);
+			
+		} finally {
+			SqlUtilities.releaseResources(null, ps, connection);
+		}		
 	}
 
 }

@@ -7,6 +7,7 @@ public class UnitDetails {
 	
 	Unit unit;
 	Company company;
+	Complex complex;
 	List<Sensor> sensors = new ArrayList<Sensor>();
 	public UnitDetails() {}
 	public UnitDetails(Unit unit) {
@@ -29,5 +30,11 @@ public class UnitDetails {
 	}
 	public void setCompany(Company company) {
 		this.company = company;
+	}
+	public Complex getComplex() {
+		return complex;
+	}
+	public void setComplex(Complex complex) {
+		this.complex = complex;
 	}
 }

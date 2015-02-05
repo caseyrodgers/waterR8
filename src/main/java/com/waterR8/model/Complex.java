@@ -22,7 +22,7 @@ public class Complex {
 	
 	public Complex(int id, int company, String complexName, String address, String city, 
 			String state, String zip, String phone, String email, int buildingCount,String constructionType,
-			String floorType, int lotSize, int floors) {
+			String floorType, int lotSize, int floors, String notes) {
 		
 		this.id = id;
 		this.company = company;
@@ -38,6 +38,7 @@ public class Complex {
 		this.floorType = floorType;
 		this.lotSize = lotSize;
 		this.floors = floors;
+		this.notes = notes;
 	}
 
 	public int getId() {

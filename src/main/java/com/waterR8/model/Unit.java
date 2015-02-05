@@ -10,7 +10,7 @@ public class Unit {
 
 	public Unit() {}
 	
-	public Unit(int id, int company, String unitNumber, String type, int beds, int tenants) {
+	public Unit(int id, int complex, String unitNumber, String type, int beds, int tenants) {
 		this.id = id;
 		this.complex = complex;
 		this.unitNumber = unitNumber;

@@ -10,7 +10,7 @@ function getData() {
 		return;
 	}
 	
-	$.ajax({url: "/api/v1/complex/" + id})
+	$.ajax({url: "/api/v1/complex/" + id,error:_errorHandler})
 	.then(function(data) {
 		loadDataIntoModels(data);
 	});
@@ -20,9 +20,17 @@ var _dataModel;
 function loadDataIntoModels(data) {
 	 function MyViewModel() {
 		 this.units = ko.observableArray(data.units['@items']);
-		 this.companyName = data.company.companyName;
+		 this.complex = data.complex;
+		 this.company = data.company;
 		 this.rowClicked = function(x) {
 			 document.location.href='unit-sensor.html?id=' + x.id;
+		 }
+		 this.deleteComplex = function(x) {
+			 verifyDelete('Complex', function() {
+				 doDeleteRecord(x,"/api/v1/complex/delete/" + x.complex.id, function() {
+				     history.go(-1);
+				 });
+			 });
 		 }
 	 }
 	 _dataModel = new MyViewModel();
@@ -53,16 +61,19 @@ function createComplex() {
                 		
                 		var e = $('#add-form');
                 		if($('#add-form').valid()) {
-	                    	var data = {
+	                    	var unitData = {
+	                    			complex: _dataModel.complex.id,
 	                    			unitNumber:$('[name=unitNumber]', e).val(),
 	                    			type:$('[name=type]', e).val(),
 	                    			beds:$('[name=beds]', e).val(),
 	                    			tenants:$('[name=tenants]', e).val(),	                    			
 	                    	};
 	                    	
-	                    	_dataModel.units.push(data);
-	                    	
-	                    	bootbox.hideAll();
+	                    	saveDataToServer(unitData, "/api/v1/unit/add", function(pk) {
+	                    		unitData.id = pk;
+	                    		_dataModel.units.push(unitData);
+	                    		bootbox.hideAll();
+	                    	});
 	                    	return false;
                 		}
                 		else {

@@ -9,7 +9,7 @@ function getData() {
 		return;
 	}
 	
-	$.ajax({url: "/api/v1/company/" + companyId})
+	$.ajax({url: "/api/v1/company/" + companyId, error: _errorHandler})
 	.then(function(data) {
 		loadDataIntoModels(data);
 	});
@@ -26,7 +26,7 @@ function loadDataIntoModels(data) {
 		 };
 		 this.deleteRecord = function(rec2Del) {
 			 verifyDelete('Company', function() {
-				 doDeleteRecord(rec2Del, function() {
+				 doDeleteRecord(rec2Del, "/api/v1/company/delete/" + data.company.id, function() {
 					 history.go(-1);
 				 });
 			 })
@@ -35,13 +35,6 @@ function loadDataIntoModels(data) {
 	 
 	 _detailData = new MyViewModel();
 	 ko.applyBindings(_detailData);
-}
-
-function doDeleteRecord(data, callback) {
-	$.ajax({url: "/api/v1/company/delete/" + data.company.id})
-	.then(function(data) {
-		callback();
-	});
 }
 
 var _addComplexHtml = null;
@@ -68,7 +61,8 @@ function createComplex() {
                 		var e = $('#complex-add-form');
                 		
                 		if($('#complex-add-form').valid()) {
-	                    	var complex = {
+	                    	var record = {
+	                    			company: _detailData.company.id,
 	                    			complexName:$('[name=complexName]', e).val(),
 	                    			address: $('[name=address]', e).val(),
 	                    			city: $('[name=city]', e).val(),
@@ -83,10 +77,11 @@ function createComplex() {
 	                    			floors: $('[name=floors]', e).val(),
 	                    			notes: $('[name=notes]', e).val()
 	                    	};
-	                    	
-	                    	_detailData.complexes.push(complex);
-	                    	
-	                    	bootbox.hideAll();
+	                    	saveDataToServer(record, "/api/v1/complex/add", function(pk) {
+	                    		record.id = pk;
+	                    		_detailData.complexes.push(record);
+	                    		bootbox.hideAll();
+	                    	});
 	                    	return false;
                 		}
                 		else {

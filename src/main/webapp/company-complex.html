@@ -16,8 +16,10 @@
     <!-- Custom styles for this template -->
     <link href="assets/css/dashboard.css" rel="stylesheet">
     <link href="libs/bootstrap/bootstrap-3.3.2-dist/css/bootstrap-theme.min.css"  rel="stylesheet">
-    <link href="libs/jasny-bootstrap/css/jasny-bootstrap.min.css"  rel="stylesheet">
-    
+    <link href="libs/jasny-bootstrap/css/jasny-bootstrap.min.css"  rel="stylesheet">    
+    <link href="libs/bootstrap-table-1.6.1/bootstrap-table.min.css"  rel="stylesheet">
+    <link href="css/font-awesome.min.css"  rel="stylesheet">    
+
     <link href="css/wr8.css"  rel="stylesheet">    
     <!-- InstanceBeginEditable name="head" -->
 <!-- InstanceEndEditable -->
@@ -66,41 +68,43 @@
 
     <div class="container">
       <!-- InstanceBeginEditable name="MainBody" -->
-		<h1 class='page-header'><span data-bind='text: company.companyName'></span> <span class='small'>Company</span></h1>
-		
-		<div class="panel panel-info">
+		<h1 class='page-header'><span class='small'>Company</span> <span data-bind='text: company.companyName'></span></h1>
+
+		<div class="panel panel-info panel-collapse" >
+		    <div class='panel-heading'>
+		        Company Info
+	        </div>
 		    <div class='panel-body'>
-		    
-				<form class="form-horizontal">
+				<form id='info-form' class="form-horizontal collapse in">
 				    <div class="form-group">
 				        <label for="address" class="control-label col-xs-2">Address</label>
 				        <div class="col-xs-10">
-				            <input type="text" name="address" class="form-control" placeholder="Address" data-bind = 'value: company.address'/>
+				            <input readonly='true' type="text" name="address" class="form-control" placeholder="Address" data-bind = 'value: company.address'/>
 				        </div>
 				    </div>
 				    <div class="form-group">
 				        <label for="city" class="control-label col-xs-2">City</label>
 				        <div class="col-xs-10">
-				            <input type="text" name="city" class="form-control" placeholder="City" data-bind = 'value: company.city'/>
+				            <input readonly='true' type="text" name="city" class="form-control" placeholder="City" data-bind = 'value: company.city'/>
 				        </div>
 				    </div>
 				    <div class="form-group">
 				        <label for="state" class="control-label col-xs-2">State</label>
 				        <div class="col-xs-10">
-				            <input type="text" name="state" class="form-control" placeholder="State" data-bind = 'value: company.state'/>
+				            <input readonly='true' type="text" name="state" class="form-control" placeholder="State" data-bind = 'value: company.state'/>
 				        </div>
 				    </div>				    
 				    <div class="form-group">
 				        <label for="zip" class="control-label col-xs-2">Zip</label>
 				        <div class="col-xs-10">
-				            <input type="text" name="zip" class="form-control" placeholder="Zip" data-bind = 'value: company.zip'/>
+				            <input readonly='true' type="text" name="zip" class="form-control" placeholder="Zip" data-bind = 'value: company.zip'/>
 				        </div>
 				    </div>				    
 				    				    
 				</form>		
 			</div>
 	        <div class="panel-footer">
-	        	<button data-bind='click: deleteRecord'>Delete Company</button>
+	        	<button class='btn btn-info' data-bind='click: deleteRecord'>Delete Company</button>
 			</div>
         </div>		    
 
@@ -153,7 +157,7 @@
 			</div>
 
 			<div class="panel-footer">
-				<button onclick='createComplex()'>Add Complex</button>
+				<button class='btn btn-info' onclick='createComplex()'>Add Complex</button>
 			</div>
 		</div>
 
@@ -163,8 +167,7 @@
 			
 			<div class="row">
 				<div class="col-md-12">
-					<form id='complex-add-form' class="form-horizontal" action='#'
-						method='POST'>
+					<form id='complex-add-form' class="form-horizontal" >
 
 						<div class="form-group">
 							<label for="complexName" class="control-label col-xs-2">Complex</label>
@@ -271,7 +274,6 @@
 
 					</form>
 
-
 				</div>
 			</div>
 
@@ -288,10 +290,13 @@
 	<script src='libs/jquery-validation/jquery.validate.1.13.1.min.js'></script>    
 
     <script src='libs/bootstrap/bootstrap-3.3.2-dist/js/bootstrap.min.js'></script>
+    <script src='libs/bootstrap-table-1.6.1/bootstrap-table.min.js'></script>
     <script src='libs/bootbox/bootbox.4.3.0.min.js'></script>
 	<script src='libs/knockout/knockout-3.2.0.min.js'></script>
+    
    	<script src='libs/jasny-bootstrap/js/jasny-bootstrap.min.js'></script>
 	<script src='js/wr8.js'></script>
+	<script src='js/live.js'></script>
 	<!-- InstanceBeginEditable name="AfterJsLoad" -->
 	<script src='js/company-complex.js'></script>
 	<script src='js/live.js'></script>

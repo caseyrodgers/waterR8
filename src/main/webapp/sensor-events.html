@@ -16,8 +16,10 @@
     <!-- Custom styles for this template -->
     <link href="assets/css/dashboard.css" rel="stylesheet">
     <link href="libs/bootstrap/bootstrap-3.3.2-dist/css/bootstrap-theme.min.css"  rel="stylesheet">
-    <link href="libs/jasny-bootstrap/css/jasny-bootstrap.min.css"  rel="stylesheet">    <link href="libs/bootstrap-table-1.6.1/bootstrap-table.min.css"  rel="stylesheet">
-    
+    <link href="libs/jasny-bootstrap/css/jasny-bootstrap.min.css"  rel="stylesheet">    
+    <link href="libs/bootstrap-table-1.6.1/bootstrap-table.min.css"  rel="stylesheet">
+    <link href="css/font-awesome.min.css"  rel="stylesheet">    
+
     <link href="css/wr8.css"  rel="stylesheet">    
     <!-- InstanceBeginEditable name="head" -->
 <!-- InstanceEndEditable -->
@@ -69,16 +71,59 @@
 
     <div class="container">
       <!-- InstanceBeginEditable name="MainBody" -->
-		<h1 class="page-header"><span data-bind='text: companyName'></span> <span class='small'>Events</span></h1>
+		<h1 class="page-header">
+		     <span class='small'>Sensor</span>
+		     <span data-bind='text: company.companyName'></span>
+             <span data-bind='text: complex.complexName'></span>
+             <span data-bind='text: unit.unitNumber'></span>
+             <span data-bind='text: sensor.sensor'></span>
+		 </h1>
 
-		<div class="panel panel-default">
+
+        <div class='panel panel-info'>
+        
+            <div class='panel-heading'>
+                Sensor Info
+            </div>
+            <div class='panel-body'>
+				<div class="row">
+					<div class="col-md-12">
+						<form id='add-form' class="form-horizontal" action='#'
+							method='POST'>
+							<div class="form-group">
+								<label for="role" class="control-label col-xs-2">Role</label>
+								<div class="col-xs-10">
+								    <input type='text' class="form-control" name="role" readonly='true' data-bind='value: sensor.role'/>
+								</div>
+							</div>			
+							
+							<div class="form-group">
+								<label for="Sensor" class="control-label col-xs-2">Sensor</label>
+								<div class="col-xs-10">
+									<input type="text" class="form-control" name="sensor"
+										placeholder="Sensor Serial Number" readonly='true' data-bind='value: sensor.sensor'>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>            
+            </div>
+           <div class='panel-footer'>
+               <button class='btn btn-info' data-bind='click: deleteSensor'>Delete Sensor</button>
+           </div>
+        
+        
+        </div>
+
+		<div class="panel panel-success">
+		    <div class='panel-heading'>100 Most Recent Events</div>
 			<div class="panel-body">
 				<div class="table-responsive">
 					<table class="table table-striped table-hover">
 						<thead>
 							<tr>
 								<th width="5%">#</th>
-								<th width="95%">Unit</th>
+								<th width="95%">Sensor</th>
 						    </tr>
 						</thead>
 						<tbody data-bind="template: {foreach: events,  as: 'e'}"
