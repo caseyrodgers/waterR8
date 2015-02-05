@@ -12,3 +12,11 @@
 .panel-heading a.collapsed:after {
     content:"\e080";
 }
+
+
+
+.panel-heading a,
+a:hover {
+    text-decoration: none;
+}
+   
