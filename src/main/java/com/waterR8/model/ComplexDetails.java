@@ -8,6 +8,7 @@ public class ComplexDetails {
 	Company company;
 	Complex complex;
 	List<Unit> units = new ArrayList<Unit>();
+	SensorNetworkStatus networkStatus;
 	
 	public ComplexDetails() {}
 	public ComplexDetails(Complex complex, List<Unit> units) {
@@ -15,6 +16,12 @@ public class ComplexDetails {
 		this.units.addAll(units);
 	}
 	
+	public SensorNetworkStatus getNetworkStatus() {
+		return networkStatus;
+	}
+	public void setNetworkStatus(SensorNetworkStatus networkStatus) {
+		this.networkStatus = networkStatus;
+	}
 	public Company getCompany() {
 		return company;
 	}

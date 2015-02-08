@@ -6,10 +6,19 @@ import java.util.List;
 public class CompanyDetails {
 	List<Complex> complexes = new ArrayList<Complex>();
 	private Company company;
+	SensorNetworkStatus networkStatus;
 	
 	public CompanyDetails(Company company, List<Complex> complexes) {
 		this.company = company;
 		this.complexes.addAll(complexes);
+	}
+
+	public SensorNetworkStatus getNetworkStatus() {
+		return networkStatus;
+	}
+
+	public void setNetworkStatus(SensorNetworkStatus networkStatus) {
+		this.networkStatus = networkStatus;
 	}
 
 	public Company getCompany() {

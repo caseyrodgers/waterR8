@@ -12,15 +12,21 @@ import java.util.logging.Logger;
 
 import com.waterR8.model.Company;
 import com.waterR8.model.CompanyDetails;
+import com.waterR8.model.CompanyNetworkMap;
 import com.waterR8.model.Complex;
 import com.waterR8.model.ComplexDetails;
+import com.waterR8.model.NetworkDevice;
+import com.waterR8.model.NetworkGraphNode;
+import com.waterR8.model.NetworkGraphNode.Type;
+import com.waterR8.model.NetworkNode;
 import com.waterR8.model.RecordOperation;
+import com.waterR8.model.RecordOperation.CrudType;
 import com.waterR8.model.Sensor;
 import com.waterR8.model.SensorDetails;
 import com.waterR8.model.SensorEvent;
+import com.waterR8.model.SensorNetworkStatus;
 import com.waterR8.model.Unit;
 import com.waterR8.model.UnitDetails;
-import com.waterR8.model.RecordOperation.CrudType;
 import com.waterR8.server.ConnectionPool;
 import com.waterR8.util.SqlUtilities;
 
@@ -71,14 +77,82 @@ public class CompanyDao {
 			connection = ConnectionPool.getConnection();
 
 			Company company = getCompany(id);
-			CompanyDetails details = new CompanyDetails(company, getComplexes(
-					connection, id));
+			CompanyDetails details = new CompanyDetails(company, getComplexes(connection, id));
+			details.setNetworkStatus(getNetworkStatus(connection, id, 0, 0, 0));
 			return details;
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "Exception getting user home status", e);
 			throw new Exception("Error getting user's home status", e);
 		} finally {
 			SqlUtilities.releaseResources(null, null, connection);
+		}
+	}
+
+	
+	/** Get the network information about the current context 
+	 *
+	 * uses first id specified in following order:list
+	 *    sensor, unit, complex, company
+	 *    
+	 *    where sensor is most granular and company broadest.
+	 * 
+	 *    
+	 *  
+	 * @param connection
+	 * @param company
+	 * @param complex
+	 * @param unit
+	 * @param sensor
+	 * @return
+	 * @throws Exception
+	 */
+	public SensorNetworkStatus getNetworkStatus(Connection connection, int company,int complex, int unit, int sensor) throws Exception {
+		SensorNetworkStatus status = new SensorNetworkStatus();
+		PreparedStatement ps=null;
+		try {
+            String sql = 
+					" select count(*) as event_count " +
+					" from events" +
+					" where src in (" +
+					"     select right(concat('00000000', to_hex(CAST(coalesce(sa.sensor, '0') AS integer))), 8) as sensor_src" +
+					" 	from   company c" +
+					" 	   JOIN complex  x on x.company = c.id" +
+					" 	   JOIN unit u on u.complex = x.id" +
+					" 	   JOIN sensor_assignment sa on sa.unit = u.id";
+			
+	        String where="";
+	        int idToUse=0;
+	        if(sensor > 0) {
+	        	where = " sa.id = ? ";
+	        	idToUse=sensor;
+	        }
+	        else if(unit > 0) {
+	        	where = " u.id = ? ";
+	        	idToUse=unit;
+	        }
+	        else if(complex > 0) {
+	        	where = " x.id = ? ";
+	        	idToUse=complex;
+	        }
+	        else {
+	        	where = " c.id = ? ";
+	        	idToUse=company;
+	        }
+	        sql += (" where " + where);
+	        
+	        
+	        sql += ")";
+	        
+			ps = connection.prepareStatement(sql);
+			ps.setInt(1,  idToUse);
+			ResultSet rs = ps.executeQuery();
+			if(rs.next()) {
+			    status.setEventCount(rs.getInt(1));
+			}
+			return status;
+		}
+		finally {
+			SqlUtilities.releaseResources(null,  ps,  null);
 		}
 	}
 
@@ -140,6 +214,7 @@ public class CompanyDao {
 			connection = ConnectionPool.getConnection();
 			ComplexDetails details = new ComplexDetails(getComplex(connection,id), getUnits(connection, id));
 			details.setCompany(getCompany(details.getComplex().getCompany()));
+			details.setNetworkStatus(getNetworkStatus(connection, details.getCompany().getId(), details.getComplex().getId(), 0,0));
 			return details;
 		} finally {
 			SqlUtilities.releaseResources(null, null, connection);
@@ -196,6 +271,7 @@ public class CompanyDao {
 			details.getSensors().addAll(getSensors(connection, id));
 			details.setComplex(getComplex(connection, details.getUnit().getComplex()));
 			details.setCompany(getCompanyForUnit(connection, details.getUnit().getId()));
+			details.setNetworkStatus(getNetworkStatus(connection, details.getCompany().getId(), details.getComplex().getId(), details.getUnit().getId(),0));
 			
 			return details;
 		} finally {
@@ -204,13 +280,13 @@ public class CompanyDao {
 		
 	}
 
-	private Collection<? extends Sensor> getSensors(Connection connection,int id) throws Exception  {
+	private Collection<? extends Sensor> getSensors(Connection connection,int unitId) throws Exception  {
 		List<Sensor> sensors = new ArrayList<Sensor>();
 		PreparedStatement ps=null;
 		try {
 			String sql = "select * from sensor_assignment where unit = ?";
 			ps = connection.prepareStatement(sql);
-			ps.setInt(1, id);
+			ps.setInt(1, unitId);
 			ResultSet rs = ps.executeQuery();
 			while(rs.next()) {
 				sensors.add(getSensorRecord(rs));
@@ -223,7 +299,7 @@ public class CompanyDao {
 	}
 
 	private Sensor getSensorRecord(ResultSet rs) throws Exception {
-		return new Sensor(rs.getInt("id"),  rs.getInt("unit"),  rs.getString("role"),  rs.getString("sensor"));		
+		return new Sensor(rs.getInt("id"), rs.getInt("unit"),rs.getString("role"), rs.getString("sensor"));		
 	}
 
 	private Unit getUnit(Connection connection, int id) throws Exception  {
@@ -253,6 +329,7 @@ public class CompanyDao {
 			details.setUnit(unit);
 			details.setCompany(getCompanyForUnit(connection, unit.getId()));
 			details.setComplex(getComplex(connection, unit.getComplex()));
+			details.setNetworkStatus(getNetworkStatus(connection, 0,0,0,details.getSensor().getId()));
 			
 			return details;
 		} finally {
@@ -584,6 +661,315 @@ public class CompanyDao {
 		} finally {
 			SqlUtilities.releaseResources(null, ps, connection);
 		}		
+	}
+
+	
+public CompanyNetworkMap getCompanyMapForComplex(int complexId) throws Exception {
+		
+	
+
+		List<NetworkGraphNode> sensors = new ArrayList<NetworkGraphNode>();
+	
+
+		List<NetworkNode> networkMap = new ArrayList<NetworkNode>();
+		
+		CompanyNetworkMap companyMap = new CompanyNetworkMap();
+		
+		Connection connection = null;
+		PreparedStatement psComplex=null;
+		PreparedStatement psUnit=null;
+		PreparedStatement psSensor=null;
+		
+		try {
+			connection = ConnectionPool.getConnection();
+			
+			// add the company, root node
+			NetworkGraphNode rootNode = new NetworkGraphNode(Type.ROOT,0, "Root");
+
+			psComplex = connection.prepareStatement("select id, complex_name from complex where id = ?");
+			psComplex.setInt(1, complexId);
+			
+			ResultSet rsComplex = psComplex.executeQuery();
+			if(!rsComplex.next()) {
+				throw new Exception("No such complex: " + complexId);
+			}
+			
+			String complexName = rsComplex.getString("complex_name");
+			NetworkGraphNode complexNode = new NetworkGraphNode(Type.COMPLEX, complexId, "Complex: " + complexName);
+			networkMap.add(new NetworkNode(rootNode, complexNode));
+				
+				
+			psUnit = connection.prepareStatement("select id, unit_number from unit where complex = ?");
+			psUnit.setInt(1, complexId);
+			ResultSet rsUnit = psUnit.executeQuery();
+
+			while(rsUnit.next()) {
+				String unitNumber = rsUnit.getString("unit_number");
+				int unitId = rsUnit.getInt("id");
+				NetworkGraphNode unitNode = new NetworkGraphNode(Type.UNIT, unitId, "Unit: " + unitNumber);
+				networkMap.add(new NetworkNode(complexNode, unitNode));
+				
+				psSensor = connection.prepareStatement("select id, sensor from sensor_assignment where unit = ?");
+				psSensor.setInt(1,  unitId);
+				
+				ResultSet rsSensor = psSensor.executeQuery();
+				
+				while(rsSensor.next()) {
+					String sensor = rsSensor.getString("sensor");
+					int sensorId = rsSensor.getInt("id");
+					
+					NetworkGraphNode sensorNode = new NetworkGraphNode(Type.SENSOR, sensorId, "Sensor: " + sensor);
+					networkMap.add(new NetworkNode(unitNode, sensorNode));
+
+					sensors.add(sensorNode);
+				}
+			}
+			
+			fixupSensorLastValues(connection, sensors);
+			
+			companyMap.setNetworkNodes(networkMap);
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			SqlUtilities.releaseResources(null, psComplex, connection);
+			SqlUtilities.releaseResources(null, psUnit, null);
+			SqlUtilities.releaseResources(null, psSensor, null);
+		}
+		
+		return companyMap;
+	}	
+	
+
+	/** TODO: combine all getMap into single dynamic one
+	 * 
+	 * @param unitId
+	 * @return
+	 * @throws Exception
+	 */
+	public CompanyNetworkMap getCompanyMapForUnit(int unitId) throws Exception {
+		
+		List<NetworkGraphNode> sensors = new ArrayList<NetworkGraphNode>();
+		
+		List<NetworkNode> networkMap = new ArrayList<NetworkNode>();
+		
+		CompanyNetworkMap companyMap = new CompanyNetworkMap();
+		
+		Connection connection = null;
+		PreparedStatement psUnit=null;
+		PreparedStatement psSensor=null;
+		
+		try {
+			connection = ConnectionPool.getConnection();
+			
+			// add the company, root node
+			NetworkGraphNode rootNode = new NetworkGraphNode(Type.ROOT,0, "Root");
+				
+			psUnit = connection.prepareStatement("select id, unit_number from unit where id = ?");
+			psUnit.setInt(1, unitId);
+			ResultSet rsUnit = psUnit.executeQuery();
+			if(!rsUnit.next()) {
+				throw new Exception("no such unit: " + unitId);
+			}
+
+			String unitNumber = rsUnit.getString("unit_number");
+			
+			NetworkGraphNode unitNode = new NetworkGraphNode(Type.UNIT, unitId, "Unit: " + unitNumber);
+			networkMap.add(new NetworkNode(rootNode, unitNode));
+			
+			psSensor = connection.prepareStatement("select id, sensor from sensor_assignment where unit = ?");
+			psSensor.setInt(1,  unitId);
+					
+			ResultSet rsSensor = psSensor.executeQuery();
+					
+			while(rsSensor.next()) {
+				String sensor = rsSensor.getString("sensor");
+				int sensorId = rsSensor.getInt("id");
+				
+				NetworkGraphNode sensorNode = new NetworkGraphNode(Type.SENSOR, sensorId, "Sensor: " + sensor);
+				networkMap.add(new NetworkNode(unitNode, sensorNode));
+				
+				sensors.add(sensorNode);
+			}
+			
+			fixupSensorLastValues(connection, sensors);
+			
+			companyMap.setNetworkNodes(networkMap);
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			SqlUtilities.releaseResources(null, psUnit, connection);
+			SqlUtilities.releaseResources(null, psSensor, null);
+		}
+		
+		return companyMap;
+	}
+
+	public CompanyNetworkMap getCompanyMapForCompany(int companyId) throws Exception {
+		
+		List<NetworkNode> networkMap = new ArrayList<NetworkNode>();
+		
+		CompanyNetworkMap companyMap = new CompanyNetworkMap();
+		
+		Connection connection = null;
+		PreparedStatement psCompany=null;
+		PreparedStatement psComplex=null;
+		PreparedStatement psUnit=null;
+		PreparedStatement psSensor=null;
+		
+		try {
+			
+
+			List<NetworkGraphNode> sensors = new ArrayList<NetworkGraphNode>();
+			
+
+			connection = ConnectionPool.getConnection();
+			
+			psCompany = connection.prepareStatement("select company_name from company where id = ?");
+			psCompany.setInt(1, companyId);
+			ResultSet rs = psCompany.executeQuery();
+			if(!rs.next()) {
+				throw new Exception("no company found to build network graph");
+			}
+			String companyName = rs.getString("company_name");
+			psCompany.close();
+			
+			
+			// add the company, root node
+			NetworkGraphNode rootNode = new NetworkGraphNode(Type.ROOT,0, "Root");
+			NetworkGraphNode companyNode = new NetworkGraphNode(Type.COMPANY, companyId, "Company: " + companyName);
+			networkMap.add(new NetworkNode(rootNode, companyNode));
+			
+
+			psComplex = connection.prepareStatement("select id, complex_name from complex where company = ?");
+			psComplex.setInt(1, companyId);
+			
+			ResultSet rsComplex = psComplex.executeQuery();
+			while(rsComplex.next()) {
+
+				String complexName = rsComplex.getString("complex_name");
+				int complexId = rsComplex.getInt("id");
+				
+				NetworkGraphNode complexNode = new NetworkGraphNode(Type.COMPLEX, complexId, "Complex: " + complexName);
+				networkMap.add(new NetworkNode(companyNode, complexNode));
+				
+				
+				psUnit = connection.prepareStatement("select id, unit_number from unit where complex = ?");
+				psUnit.setInt(1, complexId);
+				ResultSet rsUnit = psUnit.executeQuery();
+				while(rsUnit.next()) {
+					String unitNumber = rsUnit.getString("unit_number");
+					int unitId = rsUnit.getInt("id");
+					NetworkGraphNode unitNode = new NetworkGraphNode(Type.UNIT, unitId, "Unit: " + unitNumber);
+					networkMap.add(new NetworkNode(complexNode, unitNode));
+					
+					psSensor = connection.prepareStatement("select id, sensor from sensor_assignment where unit = ?");
+					psSensor.setInt(1,  unitId);
+					
+					ResultSet rsSensor = psSensor.executeQuery();
+					
+					while(rsSensor.next()) {
+						String sensor = rsSensor.getString("sensor");
+						int sensorId = rsSensor.getInt("id");
+						
+						NetworkGraphNode sensorNode = new NetworkGraphNode(Type.SENSOR, sensorId, "Sensor: " + sensor);
+						networkMap.add(new NetworkNode(unitNode, sensorNode));
+						
+						sensors.add(sensorNode);
+					}
+				}
+			}
+
+			fixupSensorLastValues(connection, sensors);
+			
+			companyMap.setNetworkNodes(networkMap);
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			SqlUtilities.releaseResources(null, psCompany, connection);
+			SqlUtilities.releaseResources(null, psComplex, null);
+			SqlUtilities.releaseResources(null, psUnit, null);
+			SqlUtilities.releaseResources(null, psSensor, null);
+		}
+		
+		return companyMap;
+	}
+
+	/** looks up the last values for named sensors and updates
+	 * the graph label to shown.
+	 * 
+	 * @param connection
+	 * @param sensors
+	 * @throws Exception
+	 */
+	private void fixupSensorLastValues(Connection connection,List<NetworkGraphNode> sensors) throws Exception {
+		String inList="";
+		for(NetworkGraphNode n: sensors) {
+			
+			if(inList.length()>0) {
+				inList += ", ";
+			}
+			inList += n.getId();
+		}
+		inList = "(" + inList + ")";
+		
+		
+		/** mark all sensors with no data */
+		for(NetworkGraphNode n: sensors) {
+			switch(n.getType()) {
+				case SENSOR:
+					n.setSubLabel("No Data");
+					break;
+					
+					default:
+						break;
+			}
+		}
+		
+		
+		PreparedStatement ps=null;
+		try {
+			 String sql =
+			 "SELECT sa.id as sensor_id, src,hopcnt,bat,rssi,dur " +
+			 "from events e  " +
+			 " JOIN sensor_assignment sa on right(concat('00000000', to_hex(CAST(coalesce(sa.sensor, '0') AS integer))), 8) = e.src " +
+			 " where sa.id in " + inList +
+			 " and e.ts in ( " +
+			 "    select max(ts) " +
+			 "    from  events e " +
+			 "      JOIN sensor_assignment sa on right(concat('00000000', to_hex(CAST(coalesce(sa.sensor, '0') AS integer))), 8) = e.src " +
+			 "    where sa.id in " + inList +
+			")";
+			ps = connection.prepareStatement(sql);
+			
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()) {
+				
+				int sensorId = rs.getInt("sensor_id");
+				int hop = rs.getInt("hopcnt");
+				int bat = rs.getInt("bat");
+				int rssi = rs.getInt("rssi");
+				int dur = rs.getInt("dur");
+				
+				boolean found=true;
+				for(NetworkGraphNode n: sensors) {
+					if(n.getId() == sensorId) {
+						String subLabel = "h: " + hop + ",b:" + bat + ",r: " + rssi + ",d:" + dur;
+						n.setSubLabel(subLabel);
+						break;
+					}
+				}
+			}
+		}
+		finally {
+			SqlUtilities.releaseResources(null, ps, null);
+		}
+		
 	}
 
 }

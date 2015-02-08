@@ -18,6 +18,7 @@
     <link href="libs/bootstrap/bootstrap-3.3.2-dist/css/bootstrap-theme.min.css"  rel="stylesheet">
     <link href="libs/jasny-bootstrap/css/jasny-bootstrap.min.css"  rel="stylesheet">    
     <link href="libs/bootstrap-table-1.6.1/bootstrap-table.min.css"  rel="stylesheet">
+    <link href="libs/jasny-bootstrap/css/jasny-bootstrap.min.css"  rel="stylesheet">    
     <link href="css/font-awesome.min.css"  rel="stylesheet">    
 
     <link href="css/wr8.css"  rel="stylesheet">    
@@ -69,12 +70,15 @@
     <div class="container">
       <!-- InstanceBeginEditable name="MainBody" -->
 		<h1 class='page-header'><span class='small'>Company</span> <span data-bind='text: company.companyName'></span></h1>
-
 		<div class="panel panel-info panel-collapse" >
 		    <div class='panel-heading'>
 		        Company Info
+		        <div class='events-label'><span data-bind='text: networkStatus.eventCount'></span> Events</div>
+		        <button type='button' data-bind='click: showNetworkMap' class='network-map-btn btn btn-xs btn-primary'>Network Map</button>
 	        </div>
 		    <div class='panel-body'>
+		    
+		    
 				<form id='info-form' class="form-horizontal collapse in">
 				    <div class="form-group">
 				        <label for="address" class="control-label col-xs-2">Address</label>
@@ -297,9 +301,12 @@
    	<script src='libs/jasny-bootstrap/js/jasny-bootstrap.min.js'></script>
 	<script src='js/wr8.js'></script>
 	<script src='js/live.js'></script>
+    <script src='js/json-io-utils.js'></script>	
+
 	<!-- InstanceBeginEditable name="AfterJsLoad" -->
+	<script src='libs/springy/springy.js'></script>
+	<script src="libs/springy/springyui.js"></script>
 	<script src='js/company-complex.js'></script>
-	<script src='js/live.js'></script>
 	<!-- InstanceEndEditable -->
     
 	

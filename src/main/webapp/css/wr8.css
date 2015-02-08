@@ -20,3 +20,13 @@ a:hover {
     text-decoration: none;
 }
    
+   
+   
+.network-map-btn {
+	margin-left: 10px;
+}
+	 
+.events-label {
+   float: right;
+   margin-right: 10px;	
+}	 

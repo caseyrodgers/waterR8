@@ -139,6 +139,28 @@ public class CompanyRest implements Serializable {
     	return JsonWriter.objectToJson(CompanyDao.getInstance().deleteSensor(id));
 	}
 
+    
+    
+    
+    @GET
+    @Path("company/network/{companyId}")
+    public String getNetworkMapForCompany(@PathParam("companyId") int id) throws Exception  {
+    	return JsonWriter.objectToJson(CompanyDao.getInstance().getCompanyMapForCompany(id));
+	}
+    @GET
+    @Path("complex/network/{complexId}")
+    public String getNetworkMapForComplex(@PathParam("complexId") int id) throws Exception  {
+    	return JsonWriter.objectToJson(CompanyDao.getInstance().getCompanyMapForComplex(id));
+	}
+    
+    @GET
+    @Path("unit/network/{unitId}")
+    public String getNetworkMapForUnit(@PathParam("unitId") int id) throws Exception  {
+    	return JsonWriter.objectToJson(CompanyDao.getInstance().getCompanyMapForUnit(id));
+	}
+    
+    
+
 
 }
 

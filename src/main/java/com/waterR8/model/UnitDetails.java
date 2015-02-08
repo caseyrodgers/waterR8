@@ -8,7 +8,9 @@ public class UnitDetails {
 	Unit unit;
 	Company company;
 	Complex complex;
-	List<Sensor> sensors = new ArrayList<Sensor>();
+	List<NetworkDevice> sensors = new ArrayList<NetworkDevice>();
+	SensorNetworkStatus networkStatus;
+	
 	public UnitDetails() {}
 	public UnitDetails(Unit unit) {
 		this.unit = unit;
@@ -19,10 +21,10 @@ public class UnitDetails {
 	public void setUnit(Unit unit) {
 		this.unit = unit;
 	}
-	public List<Sensor> getSensors() {
+	public List<NetworkDevice> getSensors() {
 		return sensors;
 	}
-	public void setSensors(List<Sensor> sensors) {
+	public void setSensors(List<NetworkDevice> sensors) {
 		this.sensors = sensors;
 	}
 	public Company getCompany() {
@@ -36,5 +38,11 @@ public class UnitDetails {
 	}
 	public void setComplex(Complex complex) {
 		this.complex = complex;
+	}
+	public SensorNetworkStatus getNetworkStatus() {
+		return networkStatus;
+	}
+	public void setNetworkStatus(SensorNetworkStatus networkStatus) {
+		this.networkStatus = networkStatus;
 	}
 }

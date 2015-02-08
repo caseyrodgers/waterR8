@@ -22,6 +22,7 @@ function loadDataIntoModels(data) {
 		 this.units = ko.observableArray(data.units['@items']);
 		 this.complex = data.complex;
 		 this.company = data.company;
+		 this.networkStatus = data.networkStatus;
 		 this.rowClicked = function(x) {
 			 document.location.href='unit-sensor.html?id=' + x.id;
 		 }
@@ -32,6 +33,11 @@ function loadDataIntoModels(data) {
 				 });
 			 });
 		 }
+		 
+		 this.showNetworkMap = function() {
+			 _showNetworkMap('complex', 'Complex ' + _dataModel.complex.complexName, _dataModel.complex.id);
+		 }
+
 	 }
 	 _dataModel = new MyViewModel();
 	 ko.applyBindings(_dataModel);

@@ -24,6 +24,7 @@ function loadDataIntoModels(dataIn) {
 		 this.company = data.company;
 		 this.complex = data.complex;
 		 this.unit = data.unit;
+		 this.networkStatus = data.networkStatus;
 		 this.rowClicked = function(x) {
 			 document.location.href='sensor-events.html?id=' + x.id;
 		 }

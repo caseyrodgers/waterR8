@@ -23,6 +23,7 @@ function loadDataIntoModels(dataIn) {
 		 this.company = data.company;
 		 this.complex = data.complex;
 		 this.unit = data.unit;
+		 this.networkStatus = data.networkStatus;
 		 this.rowClicked = function(x) {
 			 document.location.href='sensor-events.html?id=' + x.id;
 		 }
@@ -33,6 +34,10 @@ function loadDataIntoModels(dataIn) {
 			 });
 		 }
 		 this.availableRoles  = ['Sensor', 'Repeater'];
+		 
+		 this.showNetworkMap  = function() {
+			 _showNetworkMap('unit', 'Unit ' + _dataModel.unit.unitNumber,  _dataModel.unit.id);
+		 }
 	 }
 	 _dataModel = new MyViewModel(dataIn);
 	 ko.applyBindings(_dataModel);
@@ -94,7 +99,8 @@ function createComplex() {
        			   required: true
        		   },
                sensor: {
-            	   required: true
+            	   required: true,
+            	   number: true
                }
            }
 	  });

@@ -21,6 +21,8 @@ function loadDataIntoModels(data) {
 	 function MyViewModel() {
 		 this.complexes = ko.observableArray(data.complexes['@items']);
 		 this.company = data.company;
+		 this.networkStatus = data.networkStatus;
+
 		 this.rowClicked = function(x) {
 			 document.location.href='company-unit.html?id=' + x.id;
 		 };
@@ -31,11 +33,17 @@ function loadDataIntoModels(data) {
 				 });
 			 })
 		 };
+		 
+		 this.showNetworkMap = function() {
+			 _showNetworkMap('company', _detailData.company.companyName, _detailData.company.id);
+		 }
 	 }
 	 
 	 _detailData = new MyViewModel();
 	 ko.applyBindings(_detailData);
 }
+
+
 
 var _addComplexHtml = null;
 function createComplex() {

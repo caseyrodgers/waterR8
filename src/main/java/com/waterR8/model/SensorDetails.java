@@ -10,7 +10,8 @@ public class SensorDetails {
 	private Company company;
 	Complex complex;
 	Unit unit;
-
+	SensorNetworkStatus networkStatus;
+	
 	public SensorDetails() {}
 	
 	public SensorDetails(Sensor sensor) {
@@ -55,5 +56,13 @@ public class SensorDetails {
 
 	public void setUnit(Unit unit) {
 		this.unit = unit;
+	}
+
+	public SensorNetworkStatus getNetworkStatus() {
+		return networkStatus;
+	}
+
+	public void setNetworkStatus(SensorNetworkStatus networkStatus) {
+		this.networkStatus = networkStatus;
 	}
 }
