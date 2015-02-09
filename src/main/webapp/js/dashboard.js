@@ -3,11 +3,11 @@ $(document).ready(
 );
 
 function getData() {
-	$.ajax({url: "/api/v1/companies"})
+	$.ajax({url: "/api/v1/companies", error: _errorHandler})
 	.then(function(data) {
 		loadDataIntoModels(data);
 	});
-	
+
 	$('#registration-form').validate({
 		
 	    rules: {
