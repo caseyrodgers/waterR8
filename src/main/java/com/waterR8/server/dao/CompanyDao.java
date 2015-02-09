@@ -908,6 +908,11 @@ public CompanyNetworkMap getCompanyMapForComplex(int complexId) throws Exception
 	 * @throws Exception
 	 */
 	private void fixupSensorLastValues(Connection connection,List<NetworkGraphNode> sensors) throws Exception {
+
+
+        if(sensors.size() == 0) {
+            return;  // nothing to do
+        }
 		String inList="";
 		for(NetworkGraphNode n: sensors) {
 			
