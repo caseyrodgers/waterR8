@@ -4,7 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -1000,7 +1002,7 @@ public class CompanyDao {
 
 		PreparedStatement ps = null;
 		try {
-			String sql = "SELECT sa.id as sensor_id, src,hopcnt,bat,rssi,dur "
+			String sql = "SELECT sa.id as sensor_id, ts, src,hopcnt,bat,rssi,dur "
 					+ "from events e  "
 					+ " JOIN sensor_assignment sa on right(concat('00000000', to_hex(CAST(coalesce(sa.sensor, '0') AS integer))), 8) = e.src "
 					+ " where sa.id in "
@@ -1024,15 +1026,19 @@ public class CompanyDao {
 				
 				seen.add(sensorId);
 				
+				Timestamp timeStamp = rs.getTimestamp("ts");
 				int hop = rs.getInt("hopcnt");
 				int bat = rs.getInt("bat");
 				int rssi = rs.getInt("rssi");
 				int dur = rs.getInt("dur");
 
+				SimpleDateFormat dateFormat = new SimpleDateFormat("H:m");
 				boolean found = true;
 				for (NetworkGraphNode n : sensors) {
 					if (n.getId() == sensorId) {
-						String subLabel = "h: " + hop + ",b:" + bat + ",r: "
+						
+						String ts = dateFormat.format(timeStamp.getTime());
+						String subLabel = "ts:" + ts + ",h: " + hop + ",b:" + bat + ",r: "
 								+ rssi + ",d:" + dur;
 						n.setSubLabel(subLabel);
 						break;
