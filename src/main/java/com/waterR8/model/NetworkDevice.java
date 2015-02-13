@@ -1,5 +1,6 @@
 package com.waterR8.model;
 
+
 public class NetworkDevice {
 	
 	public static enum Role{
@@ -14,20 +15,54 @@ public class NetworkDevice {
 		public String getLabel() {
 			return this.label;
 		}
+
+		/** return role type, or default of sensor;
+		 * 
+		 * @param role
+		 * @return
+		 */
+		public static Role lookup(String role) {
+			try {
+				return valueOf(role.toUpperCase());
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+			return Role.SENSOR;
+		}
 	}
 	
 	int id;
 	int unit;
-	String role;
+	Role role;
 	String sensor;
+	String sensorHex;
+	private Object roleLabel;
 	
 	public NetworkDevice() {}
 		
-	protected NetworkDevice(String role, int id,int unit, String sensor) {
+	protected NetworkDevice(Role role, int id,int unit, String sensor) {
 		this.role = role;
+		this.roleLabel = role.label;
 		this.id = id;
 		this.unit = unit;
 		this.sensor = sensor;
+	}
+
+	public Object getRoleLabel() {
+		return roleLabel;
+	}
+
+	public void setRoleLabel(Object roleLabel) {
+		this.roleLabel = roleLabel;
+	}
+
+	public String getSensorHex() {
+		return sensorHex;
+	}
+
+	public void setSensorHex(String sensorHex) {
+		this.sensorHex = sensorHex;
 	}
 
 	public int getId() {
@@ -46,11 +81,11 @@ public class NetworkDevice {
 		this.unit = unit;
 	}
 
-	public String getRole() {
+	public Role getRole() {
 		return role;
 	}
 
-	public void setRole(String role) {
+	public void setRole(Role role) {
 		this.role = role;
 	}
 

@@ -5,7 +5,7 @@ public class CompanyNode extends NetworkDevice {
 	public CompanyNode() {}
 	
 	public CompanyNode(Company company) {
-		super(Role.COMPANY.name(),company.getId(),0,null);
+		super(Role.COMPANY,company.getId(),0,null);
 	}
 
 }
