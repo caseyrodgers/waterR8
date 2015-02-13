@@ -151,9 +151,14 @@ public class CompanyDao {
 			}
 			return status;
 		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
 		finally {
 			SqlUtilities.releaseResources(null,  ps,  null);
 		}
+		
+		return new SensorNetworkStatus(0);
 	}
 
 	public Company getCompany(int id) throws Exception {

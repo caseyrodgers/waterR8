@@ -172,4 +172,32 @@ function showNotify(msg) {
 
 
 
+function _gotoApp_Complex() {
+	var loc = "&rand=" + new Date().getTime();
+	var url = '/company-unit.html?id=' + _complexId + loc;
+	document.location.href = url;
+}
 
+function _gotoApp_Unit() {
+	var loc = "&rand=" + new Date().getTime();
+	var url = '/unit-sensor.html?id=' + _unitId + loc;
+	document.location.href = url;
+}
+
+function _gotoApp_Company() {
+	var loc = "&rand=" + new Date().getTime();
+	var url = '/company-complex.html?id=' + _companyId + loc;
+	document.location.href = url;
+}
+
+function _gotoPreviousPage() {
+	var backLocation = document.referrer;
+	if (backLocation) {
+	    if (backLocation.indexOf("?") > -1) {
+	        backLocation += "&randomParam=" + new Date().getTime();
+	    } else {
+	        backLocation += "?randomParam=" + new Date().getTime();
+	    }
+	    window.location.assign(backLocation);	
+	}
+}

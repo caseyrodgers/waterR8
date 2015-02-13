@@ -17,8 +17,12 @@ function getData() {
 }
 
 var _dataModel;
+var _companyId;
 function loadDataIntoModels(data) {
 	 function MyViewModel() {
+		 
+		 _companyId = data.company.id;
+		 
 		 this.units = ko.observableArray(data.units['@items']);
 		 this.complex = data.complex;
 		 this.company = data.company;

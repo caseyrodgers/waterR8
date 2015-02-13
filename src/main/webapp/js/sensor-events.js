@@ -17,8 +17,18 @@ function getData() {
 }
 
 var _dataModel;
+var _companyId;
+var _complexId;
+var _unitId;
+
 function loadDataIntoModels(dataIn) {
 	 function MyViewModel(data) {
+		 
+		 _companyId = data.company.id;
+		 _complexId = data.complex.id;
+		 _unitId = data.unit.id;
+		 
+		 
 		 this.events = ko.observableArray(data.events['@items']);
 		 this.sensor = data.sensor;
 		 this.company = data.company;
@@ -102,7 +112,8 @@ function createComplex() {
        			   required: true
        		   },
                sensor: {
-            	   required: true
+            	   required: true,
+            	   number: true
                }
            }
 	  });
