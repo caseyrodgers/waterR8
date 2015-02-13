@@ -144,7 +144,7 @@ function createCompany(companyToDelete) {
             	   
                },
                zip: {
-            	   required: true
+            	   number: true
                }
            }
 	  });
