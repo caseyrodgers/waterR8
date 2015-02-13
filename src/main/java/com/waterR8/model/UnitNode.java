@@ -5,7 +5,7 @@ public class UnitNode extends NetworkDevice {
 	public UnitNode() {}
 	
 	public UnitNode(NetworkDevice parent, Unit unit) {
-		super(Role.UNIT, unit.getId(),0,null); 
+		super(Role.UNIT.name(), unit.getId(),0,null); 
 	}
 
 }

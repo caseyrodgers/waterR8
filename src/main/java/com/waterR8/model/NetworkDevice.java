@@ -34,16 +34,15 @@ public class NetworkDevice {
 	
 	int id;
 	int unit;
-	Role role;
+	String role;
 	String sensor;
 	String sensorHex;
 	private Object roleLabel;
 	
 	public NetworkDevice() {}
 		
-	protected NetworkDevice(Role role, int id,int unit, String sensor) {
+	protected NetworkDevice(String role, int id,int unit, String sensor) {
 		this.role = role;
-		this.roleLabel = role.label;
 		this.id = id;
 		this.unit = unit;
 		this.sensor = sensor;
@@ -81,11 +80,11 @@ public class NetworkDevice {
 		this.unit = unit;
 	}
 
-	public Role getRole() {
+	public String getRole() {
 		return role;
 	}
 
-	public void setRole(Role role) {
+	public void setRole(String role) {
 		this.role = role;
 	}
 

@@ -306,8 +306,12 @@ public class CompanyDao {
 
 	private Sensor getSensorRecord(ResultSet rs) throws Exception {
 		String ssn = rs.getString("sensor");
-		return new Sensor(rs.getInt("id"), rs.getInt("unit"),
-				Role.lookup(rs.getString("role")), ssn, convertSensorIntSerialSsnToHex(ssn));
+		Sensor sensor = new Sensor(rs.getInt("id"), rs.getInt("unit"),
+				rs.getString("role"), ssn);
+		
+		sensor.setSensorHex(convertSensorIntSerialSsnToHex(ssn));
+		
+		return sensor;
 	}
 
 	private Unit getUnit(Connection connection, int id) throws Exception {
@@ -665,7 +669,7 @@ public class CompanyDao {
 					Statement.RETURN_GENERATED_KEYS);
 
 			ps.setInt(1, sensor.getUnit());
-			ps.setString(2, sensor.getRole().name());
+			ps.setString(2, sensor.getRole());
 			ps.setString(3, sensor.getSensor());
 
 			int cnt = ps.executeUpdate();
@@ -1140,7 +1144,7 @@ public class CompanyDao {
 			ps = connection.prepareStatement(sql);
 
 			ps.setInt(1, sensor.getUnit());
-			ps.setString(2, sensor.getRole().name());
+			ps.setString(2, sensor.getRole());
 			ps.setString(3, sensor.getSensor());
 			ps.setInt(4, sensor.getId());
 
