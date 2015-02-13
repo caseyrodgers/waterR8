@@ -135,16 +135,16 @@ function createCompany(companyToDelete) {
        {
     	   rules: {
                company: {
-                   required: true
+                   
                },
                city: {
-            	   required: true
+            	   
                },
                state: {
-            	   required: true
+            	   
                },
                zip: {
-            	   required: true
+            	   number: true
                }
            }
 	  });
