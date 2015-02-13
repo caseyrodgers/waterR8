@@ -26,13 +26,20 @@ function loadDataIntoModels(data) {
 		 this.rowClicked = function(x) {
 			 document.location.href='unit-sensor.html?id=' + x.id;
 		 }
-		 this.deleteComplex = function(x) {
+		 this.deleteRecord = function(x) {
 			 verifyDelete('Complex', function() {
 				 doDeleteRecord(x,"/api/v1/complex/delete/" + x.complex.id, function() {
 				     history.go(-1);
 				 });
 			 });
 		 }
+		 
+		 this.updateRecord = function(rec2Up) {
+			 doUpdateRecord(rec2Up, "/api/v1/complex/update", function() {
+				 showNotify("server updated");
+				 $('#update-button').attr('disabled',true);
+			 });
+		 }		 
 		 
 		 this.showNetworkMap = function() {
 			 _showNetworkMap('complex', 'Complex ' + _dataModel.complex.complexName, _dataModel.complex.id);
@@ -41,6 +48,8 @@ function loadDataIntoModels(data) {
 	 }
 	 _dataModel = new MyViewModel();
 	 ko.applyBindings(_dataModel);
+
+	 
 }
 
 
@@ -63,31 +72,23 @@ function createComplex() {
                 label: "Save",
                 className: "btn-success",
                 callback: function () {
-                	$('form').submit(function(x) {
-                		
-                		var e = $('#add-form');
-                		if($('#add-form').valid()) {
-	                    	var unitData = {
-	                    			complex: _dataModel.complex.id,
-	                    			unitNumber:$('[name=unitNumber]', e).val(),
-	                    			type:$('[name=type]', e).val(),
-	                    			beds:$('[name=beds]', e).val(),
-	                    			tenants:$('[name=tenants]', e).val(),	                    			
-	                    	};
-	                    	
-	                    	saveDataToServer(unitData, "/api/v1/unit/add", function(pk) {
-	                    		unitData.id = pk;
-	                    		_dataModel.units.push(unitData);
-	                    		bootbox.hideAll();
-	                    	});
-	                    	return false;
-                		}
-                		else {
-                			return false;
-                		}
-                	});
-                	$('#add-form').submit();
-                	
+            		var e = $('#add-form');
+            		if($('#add-form').valid()) {
+                    	var unitData = {
+                    			complex: _dataModel.complex.id,
+                    			unitNumber:$('[name=unitNumber]', e).val(),
+                    			type:$('[name=type]', e).val(),
+                    			beds:$('[name=beds]', e).val(),
+                    			tenants:$('[name=tenants]', e).val(),	                    			
+                    	};
+                    	
+                    	saveDataToServer(unitData, "/api/v1/unit/add", function(pk) {
+                    		unitData.id = pk;
+                    		_dataModel.units.push(unitData);
+                    		bootbox.hideAll();
+                    	});
+            		}
+            		
                 	return false;
                 }
             }
@@ -101,14 +102,12 @@ function createComplex() {
                    required: true
                },
        		   type: {
-       			   required: true
+       			   
        		   },
                beds: {
-            	   required: true,
             	   number: true
                },
                tenants: {
-            	   required: true,
             	   number: true
                }
            }

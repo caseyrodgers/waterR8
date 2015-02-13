@@ -28,13 +28,21 @@ function loadDataIntoModels(dataIn) {
 		 this.rowClicked = function(x) {
 			 document.location.href='sensor-events.html?id=' + x.id;
 		 }
-		 this.deleteSensor = function() {
+		 this.deleteRecord = function() {
 			 verifyDelete('Sensor', function() {
 				 doDeleteRecord(_dataModel.sensor.id, "/api/v1/sensor/delete/" + _dataModel.sensor.id, function() {
 					 history.go(-1);	
 				 	});
 			 });
 		 }
+		 
+		 this.updateRecord = function(rec2Up) {
+			 doUpdateRecord(rec2Up, "/api/v1/sensor/update", function() {
+				 showNotify("server updated");
+				 $('#update-button').attr('disabled',true);
+			 });
+		 }
+		 
 		 this.availableRoles  = ['Sensor', 'Repeater'];
 	 }
 	 _dataModel = new MyViewModel(dataIn);

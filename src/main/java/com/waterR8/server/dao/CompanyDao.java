@@ -977,4 +977,156 @@ public CompanyNetworkMap getCompanyMapForComplex(int complexId) throws Exception
 		
 	}
 
+	public RecordOperation updateCompany(Company company) throws Exception {
+		Connection connection = null;
+		PreparedStatement ps=null;
+		try {
+			connection = ConnectionPool.getConnection();
+			String sql = "update company "
+			        + "set company_name=? "
+			   		+ ",address=? " 
+			        + ",city=? " 
+			   		+ ",state=? "
+			        + ",zip=?"
+			   		+ " where id = ?";
+			   
+			ps = connection.prepareStatement(sql);
+			ps.setString(1, company.getCompanyName());
+			ps.setString(2, company.getAddress());
+			ps.setString(3, company.getCity());
+			ps.setString(4, company.getState());
+			ps.setString(5, company.getZip());
+			ps.setInt(6, company.getId());
+					
+			
+			int cnt = ps.executeUpdate();
+			String msg=cnt!=1?"Record not updated":"";
+			
+			return new RecordOperation(CrudType.UPDATE, company.getId(), msg);
+			
+		} finally {
+			SqlUtilities.releaseResources(null, ps, connection);
+		}		
+	}
+
+	public RecordOperation updateComplex(Complex complex) throws Exception {
+		Connection connection = null;
+		PreparedStatement ps=null;
+		try {
+			connection = ConnectionPool.getConnection();
+			
+			
+			String sql = 
+					"update complex " +
+					"set company=?," +
+					"complex_name=?," +
+					"address=?," +
+					"city=?," +
+					"state=?," +
+					"zip=?," +
+			         "phone=?," +
+			         "email=?," +
+			         "building_count=?," +
+			         "construction_type=?," +
+			         "floor_type=?," +
+			         "floors=?," +
+			         "lot_size=?," +
+			         "notes=?" +
+			         " where id = ?";
+			ps = connection.prepareStatement(sql);
+			
+			ps.setInt(1, complex.getCompany());
+			ps.setString(2,  complex.getComplexName());
+			ps.setString(3, complex.getAddress());
+			ps.setString(4,  complex.getCity());
+			ps.setString(5, complex.getState());
+			ps.setString(6, complex.getZip());
+			ps.setString(7, complex.getPhone());
+			ps.setString(8, complex.getEmail());			
+			ps.setInt(9, complex.getBuildingCount());
+			ps.setString(10, complex.getConstructionType());
+			ps.setString(11, complex.getFloorType());
+			ps.setInt(12, complex.getFloors());
+			ps.setInt(13, complex.getLotSize());
+			ps.setString(14, complex.getNotes());
+			
+			ps.setInt(15,  complex.getId());
+
+			int cnt = ps.executeUpdate();
+			String msg=cnt!=1?"Record not updated":"";
+			
+			return new RecordOperation(CrudType.UPDATE, complex.getId(), msg);
+			
+		} finally {
+			SqlUtilities.releaseResources(null, ps, connection);
+		}				
+	}
+
+	public RecordOperation updateUnit(Unit unit) throws Exception {
+		Connection connection = null;
+		PreparedStatement ps=null;
+		try {
+			connection = ConnectionPool.getConnection();
+			
+			
+			String sql = 
+					"update unit"
+					+ " set complex=?,"
+					+ " unit_number=?,"
+					+ " type=?,"
+					+ " beds=?,"
+					+ "tenants=? "
+					+ " where id = ?";
+			
+			ps = connection.prepareStatement(sql);
+
+			ps.setInt(1, unit.getComplex());
+			ps.setString(2, unit.getUnitNumber());
+			ps.setString(3, unit.getType());
+			ps.setInt(4, unit.getBeds());
+			ps.setInt(5, unit.getTenants());
+			ps.setInt(6,  unit.getId());
+
+			int cnt = ps.executeUpdate();
+			String msg=cnt!=1?"Record not updated":"";
+			
+			return new RecordOperation(CrudType.UPDATE, unit.getId(), msg);
+			
+		} finally {
+			SqlUtilities.releaseResources(null, ps, connection);
+		}				
+	}
+
+	public RecordOperation updateSensor(Sensor sensor) throws Exception {
+		Connection connection = null;
+		PreparedStatement ps=null;
+		try {
+			connection = ConnectionPool.getConnection();
+			
+			
+			String sql = 
+					"update sensor_assignment " +
+					" set unit=?," +
+					" role=?," +
+					" sensor = ? " +
+					" where id = ?";
+					
+			ps = connection.prepareStatement(sql);
+			
+			ps.setInt(1, sensor.getUnit());
+			ps.setString(2, sensor.getRole());
+			ps.setString(3, sensor.getSensor());
+			ps.setInt(4, sensor.getId());
+
+			int cnt = ps.executeUpdate();
+			String msg=cnt!=1?"Record not updated":"";
+			
+			return new RecordOperation(CrudType.UPDATE, sensor.getId(), msg);
+			
+		} finally {
+			SqlUtilities.releaseResources(null, ps, connection);
+		}				
+	}
+
+
 }

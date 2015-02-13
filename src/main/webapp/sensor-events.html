@@ -16,6 +16,7 @@
     <!-- Custom styles for this template -->
     <link href="assets/css/dashboard.css" rel="stylesheet">
     <link href="libs/bootstrap/bootstrap-3.3.2-dist/css/bootstrap-theme.min.css"  rel="stylesheet">
+    <link href="libs/bootstrap-notify/bootstrap-notify.css"  rel="stylesheet">    
     <link href="libs/jasny-bootstrap/css/jasny-bootstrap.min.css"  rel="stylesheet">    
     <link href="libs/bootstrap-table-1.6.1/bootstrap-table.min.css"  rel="stylesheet">
     <link href="libs/jasny-bootstrap/css/jasny-bootstrap.min.css"  rel="stylesheet">    
@@ -63,13 +64,14 @@
 				<li><a href='companies.html'>&lt;&lt;&nbsp;Companies</a></li>
 				<li><a href='javascript: history.go(-1)'>&lt;&lt;&nbsp;Complex</a></li>
                 <li><a href='javascript: history.go(-1)'>&lt;&lt;&nbsp;Units</a></li>				
-                <li><a href='javascript: history.go(-1)'>&lt;&lt;&nbsp;Sensors</a></li>                
+                <li><a href='javascript: history.go(-1)'>&lt;&lt;&nbsp;Unit</a></li>                
 				<!-- InstanceEndEditable -->  
             
            </ul>  
        </div>  
     </div>  
 
+    <div class='notifications top-right'></div>
     <div class="container">
       <!-- InstanceBeginEditable name="MainBody" -->
 		<h1 class="page-header">
@@ -90,12 +92,12 @@
             <div class='panel-body'>
 				<div class="row">
 					<div class="col-md-12">
-						<form id='add-form' class="form-horizontal" action='#'
+						<form id='info-form' class="form-horizontal" action='#'
 							method='POST'>
 							<div class="form-group">
 								<label for="role" class="control-label col-xs-2">Role</label>
 								<div class="col-xs-10">
-								    <input type='text' class="form-control" name="role" readonly='true' data-bind='value: sensor.role'/>
+								    <select data-bind="{options: availableRoles,value: sensor.role}" size="1" name="role" class="form-control" name="role"></select>
 								</div>
 							</div>			
 							
@@ -103,7 +105,7 @@
 								<label for="Sensor" class="control-label col-xs-2">Sensor</label>
 								<div class="col-xs-10">
 									<input type="text" class="form-control" name="sensor"
-										placeholder="Sensor Serial Number" readonly='true' data-bind='value: sensor.sensor'>
+										placeholder="Sensor Serial Number" data-bind='value: sensor.sensor'>
 								</div>
 							</div>
 						</form>
@@ -111,7 +113,8 @@
 				</div>            
             </div>
            <div class='panel-footer'>
-               <button class='btn btn-info' data-bind='click: deleteSensor'>Delete Sensor</button>
+               <button disabled='true' id='update-button' class='btn btn-info' data-bind='click: updateRecord'>Save Changes</button>           
+               <button class='btn btn-info' data-bind='click: deleteRecord'>Delete Sensor</button>
            </div>
         
         
@@ -184,6 +187,7 @@
 	<script src='libs/jquery-validation/jquery.validate.1.13.1.min.js'></script>    
 
     <script src='libs/bootstrap/bootstrap-3.3.2-dist/js/bootstrap.min.js'></script>
+        <script src='libs/bootstrap-notify/bootstrap-notify.js'></script>
     <script src='libs/bootstrap-table-1.6.1/bootstrap-table.min.js'></script>
     <script src='libs/bootbox/bootbox.4.3.0.min.js'></script>
 	<script src='libs/knockout/knockout-3.2.0.min.js'></script>

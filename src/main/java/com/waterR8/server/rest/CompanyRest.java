@@ -36,10 +36,32 @@ public class CompanyRest implements Serializable {
     }
     
     @GET
+    @Path("company/delete/{companyId}")
+    public String processCompanyDelete(@PathParam("companyId") int id) throws Exception  {
+    	return JsonWriter.objectToJson(CompanyDao.getInstance().deleteCompany(id));
+	}
+
+    @POST
+    @Path("company/update")
+    public String processCompanyUpdate(String data) throws Exception  {
+    	JSONObject jo = new JSONObject(data);
+    	JSONObject jo2 = jo.getJSONObject("company");
+    	jo2.put("@type", "com.waterR8.model.Company");
+        Company company = (Company)JsonReader.jsonToJava(jo2.toString());
+        
+    	return JsonWriter.objectToJson(CompanyDao.getInstance().updateCompany(company));
+	}
+
+    
+    @GET
     @Path("company/{companyId}")
     public String getCompayDetails(@PathParam("companyId") int id) throws Exception  {
     	return JsonWriter.objectToJson(CompanyDao.getInstance().getCompanyDetails(id));
 	}
+    
+    
+    
+    
     
     @GET
     @Path("complex/{complexId}")
@@ -75,11 +97,6 @@ public class CompanyRest implements Serializable {
 	}
 	
 	
-    @GET
-    @Path("company/delete/{companyId}")
-    public String processCompanyDelete(@PathParam("companyId") int id) throws Exception  {
-    	return JsonWriter.objectToJson(CompanyDao.getInstance().deleteCompany(id));
-	}
     
     @GET
     @Path("complex/delete/{complexId}")
@@ -93,6 +110,18 @@ public class CompanyRest implements Serializable {
     public String processComplexAdd(String data) throws Exception  {
     	return processComplexAddAux(data);
 	}
+    
+    @POST
+    @Path("complex/update")
+    public String processComplexUpdate(String data) throws Exception  {
+    	JSONObject jo = new JSONObject(data);
+    	JSONObject jo2 = jo.getJSONObject("complex");
+    	jo2.put("@type", "com.waterR8.model.Complex");
+        Complex complex = (Complex)JsonReader.jsonToJava(jo2.toString());
+        
+    	return JsonWriter.objectToJson(CompanyDao.getInstance().updateComplex(complex));
+    }
+
 
 	private String processComplexAddAux(String data) throws Exception  {
 		// convert back into a Company object
@@ -118,6 +147,19 @@ public class CompanyRest implements Serializable {
     	return JsonWriter.objectToJson(CompanyDao.getInstance().addUnit(unit));
 	}
     
+    @POST
+    @Path("unit/update")
+    public String updateUnit(String data) throws Exception  {
+    	JSONObject jo = new JSONObject(data);
+    	JSONObject jo2 = jo.getJSONObject("unit");
+    	jo2.put("@type", "com.waterR8.model.Unit");
+        Unit complex = (Unit)JsonReader.jsonToJava(jo2.toString());
+        
+    	return JsonWriter.objectToJson(CompanyDao.getInstance().updateUnit(complex));
+    }    
+    
+	
+	
     @GET
     @Path("unit/delete/{unitId}")
     public String deleteUnit(@PathParam("unitId") int id) throws Exception  {
@@ -133,6 +175,19 @@ public class CompanyRest implements Serializable {
     	return JsonWriter.objectToJson(CompanyDao.getInstance().addSensor(sensor));
 	}
 
+    
+    @POST
+    @Path("sensor/update")
+    public String updateSensor(String data) throws Exception  {
+    	JSONObject jo = new JSONObject(data);
+    	JSONObject jo2 = jo.getJSONObject("sensor");
+    	jo2.put("@type", "com.waterR8.model.Sensor");
+        Sensor sensor = (Sensor)JsonReader.jsonToJava(jo2.toString());
+        
+    	return JsonWriter.objectToJson(CompanyDao.getInstance().updateSensor(sensor));
+    }    
+    
+    
     @GET
     @Path("sensor/delete/{sensorId}")
     public String deleteSensor(@PathParam("sensorId") int id) throws Exception  {

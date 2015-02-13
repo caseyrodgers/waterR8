@@ -16,6 +16,7 @@
     <!-- Custom styles for this template -->
     <link href="assets/css/dashboard.css" rel="stylesheet">
     <link href="libs/bootstrap/bootstrap-3.3.2-dist/css/bootstrap-theme.min.css"  rel="stylesheet">
+    <link href="libs/bootstrap-notify/bootstrap-notify.css"  rel="stylesheet">    
     <link href="libs/jasny-bootstrap/css/jasny-bootstrap.min.css"  rel="stylesheet">    
     <link href="libs/bootstrap-table-1.6.1/bootstrap-table.min.css"  rel="stylesheet">
     <link href="libs/jasny-bootstrap/css/jasny-bootstrap.min.css"  rel="stylesheet">    
@@ -69,6 +70,7 @@
        </div>  
     </div>  
 
+    <div class='notifications top-right'></div>
     <div class="container">
       <!-- InstanceBeginEditable name="MainBody" -->
 		<h1 class="page-header">
@@ -90,14 +92,14 @@
 		
 		 <div class="row">
 				<div class="col-md-12">
-					<form class="form-horizontal" action='#'
+					<form id='info-form' class="form-horizontal" action='#'
 						method='POST'>
 
 						<div class="form-group">
 							<label for="unitNumber" class="control-label col-xs-2">Unit Number</label>
 							<div class="col-xs-10">
 								<input type="text" class="form-control" name="unitNumber"
-									placeholder="Unit Number" readonly='true' data-bind='value: unit.unitNumber'>
+									placeholder="Unit Number"  data-bind='value: unit.unitNumber'>
 							</div>
 						</div>
 						
@@ -105,7 +107,7 @@
 							<label for="type" class="control-label col-xs-2">Type</label>
 							<div class="col-xs-10">
 								<input type="text" class="form-control" name="type"
-									placeholder="Type" readonly='true' data-bind='value: unit.type'>
+									placeholder="Type"  data-bind='value: unit.type'>
 							</div>
 						</div>			
 						
@@ -113,7 +115,7 @@
 							<label for="beds" class="control-label col-xs-2">Beds</label>
 							<div class="col-xs-10">
 								<input type="text" class="form-control" name="beds"
-									placeholder="Beds" readonly='true' data-bind='value: unit.beds'>
+									placeholder="Beds"  data-bind='value: unit.beds'>
 							</div>
 						</div>
 						
@@ -121,7 +123,7 @@
 							<label for="tenants" class="control-label col-xs-2">Tenants</label>
 							<div class="col-xs-10">
 								<input type="text" class="form-control" name="tenants"
-									placeholder="Tenants" readonly='true' data-bind='value: unit.tenants'>
+									placeholder="Tenants"  data-bind='value: unit.tenants'>
 							</div>
 						</div>															
 
@@ -132,7 +134,8 @@
 				</div>
 			</div>
 			<div class='panel-footer'>
-			    <button class='btn btn-info' data-bind='click: deleteUnit'>Delete Unit</button>
+                <button id='update-button' disabled='true' class='btn btn-info' data-bind='click: updateRecord'>Save Changes</button>			
+			    <button class='btn btn-info' data-bind='click: deleteRecord'>Delete Unit</button>
 			</div>
             </div>
 		<div class="panel panel-success">
@@ -204,12 +207,14 @@
 	<script src='libs/jquery-validation/jquery.validate.1.13.1.min.js'></script>    
 
     <script src='libs/bootstrap/bootstrap-3.3.2-dist/js/bootstrap.min.js'></script>
+        <script src='libs/bootstrap-notify/bootstrap-notify.js'></script>
     <script src='libs/bootstrap-table-1.6.1/bootstrap-table.min.js'></script>
     <script src='libs/bootbox/bootbox.4.3.0.min.js'></script>
 	<script src='libs/knockout/knockout-3.2.0.min.js'></script>
     
    	<script src='libs/jasny-bootstrap/js/jasny-bootstrap.min.js'></script>
 	<script src='js/wr8.js'></script>
+	<script src='js/live.js'></script>
     <script src='js/json-io-utils.js'></script>	
 
 	<!-- InstanceBeginEditable name="AfterJsLoad" -->
@@ -218,7 +223,6 @@
 	<script src="libs/springy/springyui.js"></script>
 	<!-- InstanceEndEditable -->
     
-	<script src='js/live.js'></script>
 	
   </body>
 <!-- InstanceEnd --></html>

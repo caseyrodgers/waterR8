@@ -94,39 +94,36 @@ function createCompany(companyToDelete) {
 	
 	bootbox.dialog({
         title: "Add Company",
+        show: true,
         message: _addCompanyHtml,
         buttons: {
         	cancel: {
         		label: "Cancel"
         	},
-            success: {
+            submit: {
                 label: "Save",
                 className: "btn-success",
                 callback: function () {
-                	$('form').submit(function(x) {
-                		
-                		if($('#company-add-form').valid()) {
-                    		var e = $('#company-add-form');
-	                    	var company = {
-	                    			companyName:$('[name=company]', e).val(),
-	                    			owner:$('[name=owner]',e).val(),
-	                    			address:$('[name=address]', e).val(),
-	                    	        city:$('[name=city]',e).val(),
-	                    	        state: $('[name=state]', e).val(),
-	                    	        zip:$('[name=zip]', e).val()
-	                    	};
-	                    	saveDataToServer(company, function(pk) {
-	                    		company.id = pk;
-		                    	_companyData.companies.push(company);
-	                    		bootbox.hideAll();
-	                    	});
-	                    	return false;
-                		}
-                		else {
-                			return false;
-                		}
-                	});
-                	$('#company-add-form').submit();
+            		if($('#company-add-form').valid()) {
+                		var e = $('#company-add-form');
+                    	var company = {
+                    			companyName:$('[name=company]', e).val(),
+                    			owner:$('[name=owner]',e).val(),
+                    			address:$('[name=address]', e).val(),
+                    	        city:$('[name=city]',e).val(),
+                    	        state: $('[name=state]', e).val(),
+                    	        zip:$('[name=zip]', e).val()
+                    	};
+                    	saveDataToServer(company, function(pk) {
+                    		company.id = pk;
+                        	_companyData.companies.push(company);
+                    		bootbox.hideAll();
+                    	});
+                    	return false;
+            		}
+            		else {
+            			return false;
+            		}                		
                 	
                 	return false;
                 }
@@ -151,7 +148,6 @@ function createCompany(companyToDelete) {
                }
            }
 	  });
-       
 }
 
 

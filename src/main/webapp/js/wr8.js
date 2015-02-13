@@ -1,32 +1,14 @@
 var _urlParams={};window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi,function(str,key,value){_urlParams[key] = value;});
 
 $(document).ready(function(){
-    var _myModel;
-    var _cnt=0;
-	function doIt() {
-		var HelloWorldModel = function() {
-			this.hello = new ko.observable('test test');
-			_cnt++;
-			this.cnt = _cnt;
-		}
-
-		var MyBindings = function(items, testItems) {
-		    this.items = ko.observableArray(items);
-		    this.testItems = ko.observableArray(testItems);
-		    this.itemToAdd = ko.observable("");
-		    
-		    this.helloView = new HelloWorldModel();
-		    this.addItem = function() {
-		        if (this.itemToAdd() != "") {
-		            this.items.push(this.itemToAdd()); // Adds the item. Writing to the "items" observableArray causes any associated UI to update.
-		            this.itemToAdd(""); // Clears the text box, because it's bound to the "itemToAdd" observable
-		        }
-		        this.testItems.push(new HelloWorldModel());
-		        
-		    }.bind(this);  // Ensure that "this" is always this view model
-		};
-		ko.applyBindings(new MyBindings(["Alpha", "Beta", "Gamma"]));
-	}
+    // have update button enabled on keydown
+	 $('#info-form input').on('keydown',function() {
+		 $('#update-button').attr('disabled', false);
+	 })
+	 
+	 $('#info-form select').on('click',function() {
+		 $('#update-button').attr('disabled', false);
+	 })
 });
 
 function doLogout() {
@@ -66,6 +48,14 @@ function doDeleteRecord(data, deleteUrl, callback) {
 	});
 }
 
+
+function doUpdateRecord(data, restUrl, callback) {
+	var dataJson = JSON.stringify(data);
+	$.ajax({url: restUrl, type: "POST", data: dataJson, error: _errorHandler})
+	.then(function(data) {
+		callback();
+	});
+}
 
 
 
@@ -168,6 +158,18 @@ function loadNetworkGraph(data) {
 	return;
 
 }
+
+
+
+
+
+function showNotify(msg) {
+	 $('.notifications').notify({
+		    message: { text: msg },
+		    fadeOut: { enabled: true, delay: 3000 }
+		  }).show();
+}
+
 
 
 
