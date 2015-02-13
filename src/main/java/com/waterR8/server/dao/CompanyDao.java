@@ -401,7 +401,7 @@ public class CompanyDao {
 					String src = rs.getString("src");
 					int seq = rs.getInt("seq");
 					int hopCnt = rs.getInt("hopcnt");
-					int first = rs.getInt("first");
+					String first = rs.getString("first");
 					String json = rs.getString("json");
 					String type = rs.getString("type");
 					int battery = rs.getInt("bat");

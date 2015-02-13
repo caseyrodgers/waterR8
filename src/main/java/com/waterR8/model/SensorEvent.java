@@ -7,7 +7,7 @@ public class SensorEvent {
 	private String src;
 	private int seq;
 	private int hopCnt;
-	private int first;
+	private String first;
 	private String type;
 	private int bat;
 	private String timeStamp;
@@ -15,7 +15,7 @@ public class SensorEvent {
 
 	public SensorEvent() {}
 	
-	public SensorEvent(int id, String json, String type, String timeStamp, long time, String src, int seq, int hopCnt,int first, int battery) {
+	public SensorEvent(int id, String json, String type, String timeStamp, long time, String src, int seq, int hopCnt,String first, int battery) {
 		this.id = id;
 		this.json = json;
 		this.type = type;
@@ -26,38 +26,6 @@ public class SensorEvent {
 		this.hopCnt = hopCnt;
 		this.first = first;
 		this.bat = battery;
-	}
-	
-	public long getTime() {
-		return time;
-	}
-
-	public void setTime(long time) {
-		this.time = time;
-	}
-
-	public String getTimeStamp() {
-		return timeStamp;
-	}
-
-	public void setTimeStamp(String timeStamp) {
-		this.timeStamp = timeStamp;
-	}
-
-	public int getBat() {
-		return bat;
-	}
-
-	public void setBat(int bat) {
-		this.bat = bat;
-	}
-
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
 	}
 
 	public int getId() {
@@ -100,12 +68,44 @@ public class SensorEvent {
 		this.hopCnt = hopCnt;
 	}
 
-	public int getFirst() {
+	public String getFirst() {
 		return first;
 	}
 
-	public void setFirst(int first) {
+	public void setFirst(String first) {
 		this.first = first;
 	}
-	
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public int getBat() {
+		return bat;
+	}
+
+	public void setBat(int bat) {
+		this.bat = bat;
+	}
+
+	public String getTimeStamp() {
+		return timeStamp;
+	}
+
+	public void setTimeStamp(String timeStamp) {
+		this.timeStamp = timeStamp;
+	}
+
+	public long getTime() {
+		return time;
+	}
+
+	public void setTime(long time) {
+		this.time = time;
+	}
+		
 }
