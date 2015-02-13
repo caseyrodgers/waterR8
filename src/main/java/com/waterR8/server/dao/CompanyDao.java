@@ -17,7 +17,6 @@ import com.waterR8.model.CompanyDetails;
 import com.waterR8.model.CompanyNetworkMap;
 import com.waterR8.model.Complex;
 import com.waterR8.model.ComplexDetails;
-import com.waterR8.model.NetworkDevice.Role;
 import com.waterR8.model.NetworkGraphNode;
 import com.waterR8.model.NetworkGraphNode.Type;
 import com.waterR8.model.NetworkNode;
@@ -976,6 +975,7 @@ public class CompanyDao {
 		if (sensors.size() == 0) {
 			return; // nothing to do
 		}
+		
 		String inList = "";
 		for (NetworkGraphNode n : sensors) {
 
@@ -1004,18 +1004,26 @@ public class CompanyDao {
 					+ "from events e  "
 					+ " JOIN sensor_assignment sa on right(concat('00000000', to_hex(CAST(coalesce(sa.sensor, '0') AS integer))), 8) = e.src "
 					+ " where sa.id in "
-					+ inList
-					+ " and e.ts in ( "
-					+ "    select max(ts) "
-					+ "    from  events e "
-					+ "      JOIN sensor_assignment sa on right(concat('00000000', to_hex(CAST(coalesce(sa.sensor, '0') AS integer))), 8) = e.src "
-					+ "    where sa.id in " + inList + ")";
+					+ inList 
+					+ " order by sa.id, ts desc";
+				
 			ps = connection.prepareStatement(sql);
 
+			List<Integer> seen = new ArrayList<Integer>();
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
 
 				int sensorId = rs.getInt("sensor_id");
+				
+				// is this one already record
+				if(seen.size() > 0) {
+					if(seen.get(seen.size()-1) == sensorId) {
+						continue;  // ready in list
+					}
+				}
+				
+				seen.add(sensorId);
+				
 				int hop = rs.getInt("hopcnt");
 				int bat = rs.getInt("bat");
 				int rssi = rs.getInt("rssi");
@@ -1030,11 +1038,11 @@ public class CompanyDao {
 						break;
 					}
 				}
+				
 			}
 		} finally {
 			SqlUtilities.releaseResources(null, ps, null);
 		}
-
 	}
 
 	public RecordOperation updateCompany(Company company) throws Exception {
