@@ -21,13 +21,14 @@ function getData() {
 
 // for location services
 var _complexId;
-
+var _companyId;
 
 var _dataModel;
 function loadDataIntoModels(dataIn) {
 	 function MyViewModel(data) {
 		 
 		 _complexId = data.complex.id;
+		 _companyId = data.company.id;
 		 
 		 this.sensors = ko.observableArray(data.sensors['@items']);
 		 this.company = data.company;

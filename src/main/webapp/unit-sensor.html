@@ -62,8 +62,8 @@
             <ul class="breadcrumb">
               <!-- InstanceBeginEditable name="BreadCrumb" -->
 				<li><a href='companies.html'>&lt;&lt;&nbsp;Companies</a></li>
-				<li><a href='javascript: history.go(-1)'>&lt;&lt;&nbsp;Company</a></li>
-                <li><a href='javascript:_gotoPreviousPage()'>&lt;&lt;&nbsp;Complex</a></li>				
+				<li><a href='javascript: _gotoApp_Company()'>&lt;&lt;&nbsp;Company</a></li>
+                <li><a href='javascript: _gotoApp_Complex()'>&lt;&lt;&nbsp;Complex</a></li>				
 				<!-- InstanceEndEditable -->  
             
            </ul>  
@@ -148,6 +148,8 @@
 								<th width="5%">#</th>
 								<th width="18%">Role</th>
 								<th width="18%">Sensor</th>
+                                <th width="18%">Event Count</th>
+                                <th width="18%">Last Event</th>								
 						    </tr>
 						</thead>
 						<tbody data-bind="template: {foreach: sensors,  as: 's'}"
@@ -156,6 +158,8 @@
 								<td data-bind='text: s.id'></td>
                                 <td data-bind="text: s.role"></td>
 								<td data-bind="text: s.sensor"></td>
+                                <td data-bind="text: s.eventCount"></td>
+								<td data-bind="text: s.lastEvent"></td>
 							</tr>
 						</tbody>
 					</table>

@@ -38,6 +38,8 @@ public class NetworkDevice {
 	String sensor;
 	String sensorHex;
 	private Object roleLabel;
+	int eventCount;
+	String lastEvent;
 	
 	public NetworkDevice() {}
 		
@@ -46,6 +48,22 @@ public class NetworkDevice {
 		this.id = id;
 		this.unit = unit;
 		this.sensor = sensor;
+	}
+
+	public int getEventCount() {
+		return eventCount;
+	}
+
+	public void setEventCount(int eventCount) {
+		this.eventCount = eventCount;
+	}
+
+	public String getLastEvent() {
+		return lastEvent;
+	}
+
+	public void setLastEvent(String lastEvent) {
+		this.lastEvent = lastEvent;
 	}
 
 	public Object getRoleLabel() {

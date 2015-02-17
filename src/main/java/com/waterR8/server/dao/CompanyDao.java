@@ -230,9 +230,36 @@ public class CompanyDao {
 		List<Unit> units = new ArrayList<Unit>();
 		PreparedStatement ps = null;
 		try {
-			ps = connection
-					.prepareStatement("select * from unit where complex = ? order by unit_number");
+			
+			String sql = 
+					"select u.*, ec.event_count, le.last_event " +
+					"from unit u " +
+					"LEFT JOIN ( " +
+					"       select u.id, count(*) as event_count " +
+					"         from unit u " +
+					"         join sensor_assignment sa on sa.unit = u.id " +
+					"         join events e on right(concat('00000000', to_hex(CAST(coalesce(sa.sensor, '0') AS integer))), 8) = e.src " +
+					"      where u.complex = ? " +
+					"      group by u.id " +
+					"  ) ec on ec.id = u.id " +
+					" " +
+					"LEFT JOIN ( " +
+					"       select u.id, max(ts) as last_event " +
+					"         from unit u " +
+					"         join sensor_assignment sa on sa.unit = u.id " +
+					"         join events e on right(concat('00000000', to_hex(CAST(coalesce(sa.sensor, '0') AS integer))), 8) = e.src " +
+					"      where u.complex = ? " +
+					"      group by u.id " +
+					"  ) le on le.id = u.id " +
+					"   " +
+					"where u.complex = ? ";
+			
+			
+			// "select * from unit where complex = ? order by unit_number"
+			ps = connection.prepareStatement(sql);
 			ps.setInt(1, complexId);
+			ps.setInt(2, complexId);
+			ps.setInt(3, complexId);
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
 				units.add(getUnitRecord(rs));
@@ -244,9 +271,20 @@ public class CompanyDao {
 	}
 
 	private Unit getUnitRecord(ResultSet rs) throws Exception {
+
+		String lastEvent = getLastEvent(rs.getTimestamp("last_event"));
+		
 		return new Unit(rs.getInt("id"), rs.getInt("complex"),
 				rs.getString("unit_number"), rs.getString("type"),
-				rs.getInt("beds"), rs.getInt("tenants"));
+				rs.getInt("beds"), rs.getInt("tenants"), rs.getInt("event_count"), lastEvent);
+	}
+
+	private String getLastEvent(Timestamp timestamp) {
+		String lastTs = "";
+		if(timestamp!=null) {
+			lastTs = _dateFormat.format(timestamp.getTime());
+		}
+		return lastTs;
 	}
 
 	private Complex getComplex(Connection connection, int id) throws Exception {
@@ -292,12 +330,40 @@ public class CompanyDao {
 		List<Sensor> sensors = new ArrayList<Sensor>();
 		PreparedStatement ps = null;
 		try {
-			String sql = "select * from sensor_assignment where unit = ?";
+			String sql = 
+					
+					"select sa.*, ec.event_count, le.last_event  " +
+							"from sensor_assignment sa " +
+							"LEFT JOIN ( " +
+							"       select sa.id, count(*) as event_count " +
+							"         from sensor_assignment sa " +
+							"         join events e on right(concat('00000000', to_hex(CAST(coalesce(sa.sensor, '0') AS integer))), 8) = e.src " +
+							"      where sa.unit= ? " +
+							"      group by sa.id " +
+							"  ) ec on ec.id = sa.id " +
+							" " +
+							"LEFT JOIN ( " +
+							"       select sa.id, max(ts) as last_event " +
+							"         from sensor_assignment sa " +
+							"         join events e on right(concat('00000000', to_hex(CAST(coalesce(sa.sensor, '0') AS integer))), 8) = e.src " +
+							"      where sa.unit = ? " +
+							"      group by sa.id " +
+							"  ) le on le.id = sa.id " +
+							"where sa.unit  = ? ";
+					
+					
+					//"select * from sensor_assignment where unit = ?";
+			
 			ps = connection.prepareStatement(sql);
 			ps.setInt(1, unitId);
+			ps.setInt(2, unitId);
+			ps.setInt(3, unitId);
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
-				sensors.add(getSensorRecord(rs));
+				Sensor sensorRecord = getSensorRecord(rs);
+				sensorRecord.setEventCount(rs.getInt("event_count"));
+				sensorRecord.setLastEvent(getLastEvent(rs.getTimestamp("last_event")));
+				sensors.add(sensorRecord);
 			}
 			return sensors;
 		} finally {
@@ -318,7 +384,8 @@ public class CompanyDao {
 	private Unit getUnit(Connection connection, int id) throws Exception {
 		PreparedStatement ps = null;
 		try {
-			ps = connection.prepareStatement("select * from unit where id = ?");
+			String sql = "select u.*, 0 as event_count, null as last_event from unit u where id = ?";
+			ps = connection.prepareStatement(sql);
 			ps.setInt(1, id);
 			ResultSet rs = ps.executeQuery();
 			if (!rs.next()) {
@@ -381,12 +448,14 @@ public class CompanyDao {
 	}
 
 	 
+	SimpleDateFormat _dateFormat = new SimpleDateFormat("hh:m M/d/yy"); // DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+	
 	// look for events with this src;
 	private Collection<? extends SensorEvent> getSensorEvents(
 			Connection connection, Sensor sensor) throws Exception {
 		List<SensorEvent> events = new ArrayList<SensorEvent>();
 	
-		DateFormat format = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+		
 		
 		try {
 			String sensorSerialInHex = convertSensorIntSerialSsnToHex(sensor.getSensor());
@@ -410,7 +479,7 @@ public class CompanyDao {
 					long time = rs.getTimestamp("ts").getTime();
 
 					
-					String timeStamp = format.format(new Date(time));
+					String timeStamp = _dateFormat.format(new Date(time));
 					events.add(new SensorEvent(rs.getInt("id"), json,type, timeStamp,time,src, seq,
 							hopCnt, first, battery));
 				}
@@ -1008,7 +1077,8 @@ public class CompanyDao {
 					+ " where sa.id in "
 					+ inList 
 					+ " order by sa.id, ts desc";
-				
+
+			
 			ps = connection.prepareStatement(sql);
 
 			List<Integer> seen = new ArrayList<Integer>();

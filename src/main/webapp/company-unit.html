@@ -222,21 +222,23 @@
 					<table class="table table-striped table-hover">
 						<thead>
 							<tr>
-								<th width="5%">#</th>
-								<th width="18%">Unit Number</th>
-								<th width="18%">Type</th>
-								<th width="18%">Beds</th>
-								<th width="18%">Tenants</th>										
+								<th width="15%">Unit Number</th>
+								<th width="15">Type</th>
+								<th width="15%">Beds</th>
+								<th width="15%">Tenants</th>
+								<th width="15">Event Count</th>
+								<th width="15%">Last Event</th>		
 																
 						</thead>
 						<tbody data-bind="template: {foreach: units,  as: 'unit'}"
 							class="rowlink">
 							<tr data-bind="click: $root.rowClicked">
-								<td data-bind='text: unit.id'></td>
 								<td data-bind="text: unit.unitNumber"></td>
                                 <td data-bind="text: unit.type"></td>
 								<td data-bind="text: unit.beds"></td>
-                                <td data-bind="text: unit.tenants"></td>								
+                                <td data-bind="text: unit.tenants"></td>
+                                <td data-bind="text: unit.eventCount"></td>
+                                <td data-bind="text: unit.lastEvent"></td>								
 							</tr>
 						</tbody>
 					</table>

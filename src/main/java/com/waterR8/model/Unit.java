@@ -7,16 +7,36 @@ public class Unit {
 	String type;
 	int beds;
 	int tenants;
+	private int eventCount;
+	private String lastEvent;
 
 	public Unit() {}
 	
-	public Unit(int id, int complex, String unitNumber, String type, int beds, int tenants) {
+	public Unit(int id, int complex, String unitNumber, String type, int beds, int tenants, int eventCount, String lastEvent) {
 		this.id = id;
 		this.complex = complex;
 		this.unitNumber = unitNumber;
 		this.type = type;
 		this.beds = beds;
 		this.tenants = tenants;
+		this.eventCount = eventCount;
+		this.lastEvent = lastEvent;
+	}
+
+	public int getEventCount() {
+		return eventCount;
+	}
+
+	public void setEventCount(int eventCount) {
+		this.eventCount = eventCount;
+	}
+
+	public String getLastEvent() {
+		return lastEvent;
+	}
+
+	public void setLastEvent(String lastEvent) {
+		this.lastEvent = lastEvent;
 	}
 
 	public int getId() {
