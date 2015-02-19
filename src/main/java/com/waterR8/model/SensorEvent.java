@@ -12,10 +12,12 @@ public class SensorEvent {
 	private int bat;
 	private String timeStamp;
 	private long time;
+	private int dur;
+	private int len;
 
 	public SensorEvent() {}
 	
-	public SensorEvent(int id, String json, String type, String timeStamp, long time, String src, int seq, int hopCnt,String first, int battery) {
+	public SensorEvent(int id, String json, String type, String timeStamp, long time, String src, int seq, int hopCnt,String first, int battery, int duration) {
 		this.id = id;
 		this.json = json;
 		this.type = type;
@@ -26,6 +28,15 @@ public class SensorEvent {
 		this.hopCnt = hopCnt;
 		this.first = first;
 		this.bat = battery;
+		this.dur = duration;
+	}
+
+	public int getDur() {
+		return dur;
+	}
+
+	public void setDur(int dur) {
+		this.dur = dur;
 	}
 
 	public int getId() {

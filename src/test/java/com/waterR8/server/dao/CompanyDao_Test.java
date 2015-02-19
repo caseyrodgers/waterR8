@@ -86,6 +86,7 @@ public class CompanyDao_Test extends TestCase {
 		assertNotNull(details.getSensors());
 		assertTrue(details.getSensors().size() > 0);
 		assertNotNull(details.getUnit().getUnitNumber());
+		assertTrue(details.getUnit().getLastRepeaterSeq()>0);
 	}
 	
 	public void testGetSensorDetails() throws Exception {

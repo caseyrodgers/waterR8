@@ -31,6 +31,7 @@ import com.waterR8.model.SensorNetworkStatus;
 import com.waterR8.model.Unit;
 import com.waterR8.model.UnitDetails;
 import com.waterR8.server.ConnectionPool;
+import com.waterR8.util.DateUtils;
 import com.waterR8.util.SqlUtilities;
 
 public class CompanyDao {
@@ -116,7 +117,7 @@ public class CompanyDao {
 		PreparedStatement ps = null;
 		try {
 			String sql = " select count(*) as event_count "
-					+ " from events"
+					+ " from events e"
 					+ " where src in ("
 					+ "     select right(concat('00000000', to_hex(CAST(coalesce(sa.sensor, '0') AS integer))), 8) as sensor_src"
 					+ " 	from   company c"
@@ -141,7 +142,8 @@ public class CompanyDao {
 			}
 			sql += (" where " + where);
 
-			sql += ")";
+			sql += ") and e.type = 2 ";
+			
 
 			ps = connection.prepareStatement(sql);
 			ps.setInt(1, idToUse);
@@ -232,27 +234,73 @@ public class CompanyDao {
 		try {
 			
 			String sql = 
-					"select u.*, ec.event_count, le.last_event " +
-					"from unit u " +
-					"LEFT JOIN ( " +
-					"       select u.id, count(*) as event_count " +
-					"         from unit u " +
-					"         join sensor_assignment sa on sa.unit = u.id " +
-					"         join events e on right(concat('00000000', to_hex(CAST(coalesce(sa.sensor, '0') AS integer))), 8) = e.src " +
-					"      where u.complex = ? " +
-					"      group by u.id " +
-					"  ) ec on ec.id = u.id " +
-					" " +
-					"LEFT JOIN ( " +
-					"       select u.id, max(ts) as last_event " +
-					"         from unit u " +
-					"         join sensor_assignment sa on sa.unit = u.id " +
-					"         join events e on right(concat('00000000', to_hex(CAST(coalesce(sa.sensor, '0') AS integer))), 8) = e.src " +
-					"      where u.complex = ? " +
-					"      group by u.id " +
-					"  ) le on le.id = u.id " +
-					"   " +
-					"where u.complex = ? ";
+			"SELECT u.*,  " +
+					"       ec.event_count,  " +
+					"       le.last_sensor_event,  " +
+					"       lrs.last_repeater_seq  " +
+					"FROM   unit u  " +
+					"       LEFT JOIN (SELECT u.id,  " +
+					"                         Count(*) AS event_count  " +
+					"                  FROM   unit u  " +
+					"                         JOIN sensor_assignment sa  " +
+					"                           ON sa.unit = u.id  " +
+					"                         JOIN events e  " +
+					"                           ON RIGHT(Concat('00000000', To_hex(Cast(  " +
+					"                                                       COALESCE(sa.sensor,  " +
+					"                                                       '0') AS  " +
+					"                                                       INTEGER)))  " +
+					"                              , 8)  " +
+					"                              = e.src  " +
+					"                  WHERE  u.complex = ?  " +
+					"                         AND e.type = 2  " +
+					"                  GROUP  BY u.id) ec  " +
+					"              ON ec.id = u.id  " +
+					"       LEFT JOIN (SELECT u.id,  " +
+					"                         Max(ts) AS last_sensor_event  " +
+					"                  FROM   unit u  " +
+					"                         JOIN sensor_assignment sa  " +
+					"                           ON sa.unit = u.id  " +
+					"                         JOIN events e  " +
+					"                           ON RIGHT(Concat('00000000', To_hex(Cast(  " +
+					"                                                       COALESCE(sa.sensor,  " +
+					"                                                       '0') AS  " +
+					"                                                       INTEGER)))  " +
+					"                              , 8)  " +
+					"                              = e.src  " +
+					"                  WHERE  u.complex = ?  " +
+					"                         AND e.type = 2  " +
+					"                  GROUP  BY u.id) le  " +
+					"              ON le.id = u.id  " +
+					"       LEFT JOIN (SELECT u.id,  " +
+					"                         e.seq AS last_repeater_seq  " +
+					"                  FROM   unit u  " +
+					"                         JOIN sensor_assignment sa  " +
+					"                           ON sa.unit = u.id  " +
+					"                         JOIN events e  " +
+					"                           ON RIGHT(Concat('00000000', To_hex(Cast(  " +
+					"                                                       COALESCE(sa.sensor, '0')  " +
+					"                                                       AS  " +
+					"                                                       INTEGER)))  " +
+					"                              , 8)  " +
+					"                              = e.src  " +
+					"                         JOIN (SELECT u.id,  " +
+					"                                      Max(e.id) AS max_id  " +
+					"                               FROM   unit u  " +
+					"                                      JOIN sensor_assignment sa  " +
+					"                                        ON sa.unit = u.id  " +
+					"                                      JOIN events e  " +
+					"                                        ON RIGHT(Concat('00000000', To_hex(Cast(  " +
+					"       COALESCE(sa.sensor, '0')  " +
+					"       AS  " +
+					"       INTEGER)))  " +
+					"       , 8)  " +
+					"       = e.src  " +
+					"       WHERE  u.complex = ?  " +
+					"       AND e.type = 132  " +
+					"       GROUP  BY u.id) me  " +
+					"       ON me.max_id = e.id) lrs  " +
+					"              ON lrs.id = u.id  " +
+					" WHERE  u.complex = ?  ";
 			
 			
 			// "select * from unit where complex = ? order by unit_number"
@@ -260,6 +308,7 @@ public class CompanyDao {
 			ps.setInt(1, complexId);
 			ps.setInt(2, complexId);
 			ps.setInt(3, complexId);
+			ps.setInt(4, complexId);
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
 				units.add(getUnitRecord(rs));
@@ -272,17 +321,19 @@ public class CompanyDao {
 
 	private Unit getUnitRecord(ResultSet rs) throws Exception {
 
-		String lastEvent = getLastEvent(rs.getTimestamp("last_event"));
+		String lastEvent = getLastEvent(rs.getTimestamp("last_sensor_event"));
+		int lastRepeaterSeq = rs.getInt("last_repeater_seq");
 		
 		return new Unit(rs.getInt("id"), rs.getInt("complex"),
 				rs.getString("unit_number"), rs.getString("type"),
-				rs.getInt("beds"), rs.getInt("tenants"), rs.getInt("event_count"), lastEvent);
+				rs.getInt("beds"), rs.getInt("tenants"), rs.getInt("event_count"), lastEvent, lastRepeaterSeq);
 	}
 
 	private String getLastEvent(Timestamp timestamp) {
 		String lastTs = "";
 		if(timestamp!=null) {
-			lastTs = _dateFormat.format(timestamp.getTime());
+			//lastTs = _dateFormat.format(timestamp.getTime());
+			lastTs = DateUtils.getTimeSinceLabel(new Date(timestamp.getTime()));
 		}
 		return lastTs;
 	}
@@ -332,7 +383,7 @@ public class CompanyDao {
 		try {
 			String sql = 
 					
-					"select sa.*, ec.event_count, le.last_event  " +
+					"select sa.*, ec.event_count, le.last_sensor_event  " +
 							"from sensor_assignment sa " +
 							"LEFT JOIN ( " +
 							"       select sa.id, count(*) as event_count " +
@@ -343,7 +394,7 @@ public class CompanyDao {
 							"  ) ec on ec.id = sa.id " +
 							" " +
 							"LEFT JOIN ( " +
-							"       select sa.id, max(ts) as last_event " +
+							"       select sa.id, max(ts) as last_sensor_event " +
 							"         from sensor_assignment sa " +
 							"         join events e on right(concat('00000000', to_hex(CAST(coalesce(sa.sensor, '0') AS integer))), 8) = e.src " +
 							"      where sa.unit = ? " +
@@ -362,7 +413,7 @@ public class CompanyDao {
 			while (rs.next()) {
 				Sensor sensorRecord = getSensorRecord(rs);
 				sensorRecord.setEventCount(rs.getInt("event_count"));
-				sensorRecord.setLastEvent(getLastEvent(rs.getTimestamp("last_event")));
+				sensorRecord.setLastEvent(getLastEvent(rs.getTimestamp("last_sensor_event")));
 				sensors.add(sensorRecord);
 			}
 			return sensors;
@@ -384,7 +435,7 @@ public class CompanyDao {
 	private Unit getUnit(Connection connection, int id) throws Exception {
 		PreparedStatement ps = null;
 		try {
-			String sql = "select u.*, 0 as event_count, null as last_event from unit u where id = ?";
+			String sql = "select u.*, 0 as event_count, null as last_sensor_event, 0 as last_repeater_seq from unit u where id = ?";
 			ps = connection.prepareStatement(sql);
 			ps.setInt(1, id);
 			ResultSet rs = ps.executeQuery();
@@ -476,12 +527,12 @@ public class CompanyDao {
 					String json = rs.getString("json");
 					String type = rs.getString("type");
 					int battery = rs.getInt("bat");
+					int dur = rs.getInt("dur");
 					long time = rs.getTimestamp("ts").getTime();
-
 					
 					String timeStamp = _dateFormat.format(new Date(time));
 					events.add(new SensorEvent(rs.getInt("id"), json,type, timeStamp,time,src, seq,
-							hopCnt, first, battery));
+							hopCnt, first, battery, dur));
 				}
 			} finally {
 				SqlUtilities.releaseResources(null, ps, null);

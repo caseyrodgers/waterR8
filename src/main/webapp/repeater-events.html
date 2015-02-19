@@ -8,7 +8,8 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <!-- InstanceBeginEditable name="doctitle" -->
-<title>Company Unit</title>
+    <meta http-equiv="refresh" content="30" />
+<title>Repeater Events</title>
 <!-- InstanceEndEditable -->
     <!-- Bootstrap core CSS -->
     <link href="libs/bootstrap/bootstrap-3.3.2-dist/css/bootstrap.css" rel="stylesheet" >
@@ -57,9 +58,10 @@
         <div class="span6">  
             <ul class="breadcrumb">
               <!-- InstanceBeginEditable name="BreadCrumb" -->
-				<li id='company-bread'><a href='companies.html'>&lt;&lt;&nbsp;Companies</a></li>
+				<li id='company-bread' style='display: none'><a href='companies.html'>&lt;&lt;&nbsp;Companies</a></li>
 				<li><a href='javascript: _gotoApp_Company()'>&lt;&lt;&nbsp;Company</a></li>
                 <li><a href='javascript: _gotoApp_Complex()'>&lt;&lt;&nbsp;Complex</a></li>				
+                <li><a href='javascript: _gotoApp_Unit()'>&lt;&lt;&nbsp;Unit</a></li>                
 				<!-- InstanceEndEditable -->  
             
            </ul>  
@@ -70,88 +72,65 @@
     <div class="container">
       <!-- InstanceBeginEditable name="MainBody" -->
 		<h1 class="page-header">
-		    <span class='small'>Unit</span>
-		    <span data-bind='text: unit.unitNumber'></span>
-		</h1>
-		
-		
-		<div class='panel panel-info'>
-		
-		    <div class='panel-heading'>
-		        Unit Info
-		        <div class='events-label'><span data-bind='text: networkStatus.eventCount'></span> Sensor Events</div>
-		        <div class='network-map-btn btn btn-primary btn-xs' data-bind='click: showNetworkMap'>Network Map</div>
-		    </div>
-		    <div class='panel-body'>
-		
-		 <div class="row">
-				<div class="col-md-12">
-					<form id='info-form' class="form-horizontal" action='#'
-						method='POST'>
-
-						<div class="form-group">
-							<label for="unitNumber" class="control-label col-xs-2">Unit Number</label>
-							<div class="col-xs-10">
-								<input type="text" class="form-control" name="unitNumber"
-									placeholder="Unit Number"  data-bind='value: unit.unitNumber'>
-							</div>
-						</div>
-						
-						<div class="form-group">
-							<label for="type" class="control-label col-xs-2">Type</label>
-							<div class="col-xs-10">
-								<input type="text" class="form-control" name="type"
-									placeholder="Type"  data-bind='value: unit.type'>
-							</div>
-						</div>			
-						
-						<div class="form-group">
-							<label for="beds" class="control-label col-xs-2">Beds</label>
-							<div class="col-xs-10">
-								<input type="text" class="form-control" name="beds"
-									placeholder="Beds"  data-bind='value: unit.beds'>
-							</div>
-						</div>
-						
-						<div class="form-group">
-							<label for="tenants" class="control-label col-xs-2">Tenants</label>
-							<div class="col-xs-10">
-								<input type="text" class="form-control" name="tenants"
-									placeholder="Tenants"  data-bind='value: unit.tenants'>
-							</div>
-						</div>															
-
-					</form>
+		     <span class='small'>Repeater</span>
+             <span data-bind='text: sensor.sensor'></span>
+		 </h1>
 
 
-				</div>
-				</div>
-			</div>
-			<div class='panel-footer'>
-                <button id='update-button' disabled='true' class='btn btn-info' data-bind='click: updateRecord'>Save Changes</button>			
-			    <button class='btn btn-info' data-bind='click: deleteRecord'>Delete Unit</button>
-			</div>
+        <div class='panel panel-info'>
+        
+            <div class='panel-heading'>
+                Repeater Info
+                <div style="float: right"><span data-bind='text: networkStatus.eventCount'></span> Events</div>                
             </div>
+            <div class='panel-body'>
+				<div class="row">
+					<div class="col-md-12">
+						<form id='info-form' class="form-horizontal" action='#'
+							method='POST'>
+							<div class="form-group">
+								<label for="role" class="control-label col-xs-2">Role</label>
+								<div class="col-xs-10">
+								    <input data-bind="value: sensor.role" name="role" class="form-control" readonly='true'/>
+								</div>
+							</div>			
+							
+							<div class="form-group">
+								<label for="Sensor" class="control-label col-xs-2">Serial Number</label>
+								<div class="col-xs-10">
+									<input type="text" class="form-control" name="sensor"
+										placeholder="Sensor Serial Number" data-bind='value: sensor.sensor' readonly='true'>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>            
+            </div>
+           <div class='panel-footer'>
+               <button class='btn btn-info' data-bind='click: deleteRecord'>Delete Sensor</button>
+           </div>
+        
+        
+        </div>
+
 		<div class="panel panel-success">
-		    <div class='panel-heading'>Sensors</div>
+		    <div class='panel-heading'>100 Most Recent Sensor Events for src <b data-bind='text: sensor.sensorHex'></b></div>
 			<div class="panel-body">
 				<div class="table-responsive">
 					<table class="table table-striped table-hover">
 						<thead>
 							<tr>
-								<th width="18%">Role</th>
-								<th width="18%">Sensor</th>
-                                <th width="18%">Total Events</th>
-                                <th width="18%">Last Event</th>								
+							    <th width="35%">Sequence</th>
+							    <th width="30%">Hop Count</th>
+								<th width="30%">First</th>
 						    </tr>
 						</thead>
-						<tbody data-bind="template: {foreach: sensors,  as: 's'}"
+						<tbody data-bind="template: {foreach: events,  as: 'e'}"
 							class="rowlink">
-							<tr data-bind="click: $root.rowClicked">
-                                <td data-bind="text: s.role"></td>
-								<td data-bind="text: s.sensor"></td>
-                                <td data-bind="text: s.eventCount"></td>
-								<td data-bind="text: s.lastEvent"></td>
+							<tr>
+								<td data-bind='text: e.seq'></td>
+                                <td data-bind='text: e.hopCnt'></td>
+                                <td data-bind='text: e.timeStamp'></td>
 							</tr>
 						</tbody>
 					</table>
@@ -161,7 +140,7 @@
 			</div>
 
 			<div class="panel-footer">
-				<button class='btn btn-info' onclick='createComplex()'>Add Sensor</button>
+				
 			</div>
 		</div>
 
@@ -217,9 +196,7 @@
     <script src='js/json-io-utils.js'></script>	
 
 	<!-- InstanceBeginEditable name="AfterJsLoad" -->
-	<script src='js/unit-sensor.js'></script>
-	<script src='libs/springy/springy.js'></script>
-	<script src="libs/springy/springyui.js"></script>
+	<script src='js/sensor-events.js'></script>
 	<!-- InstanceEndEditable -->
     
 	

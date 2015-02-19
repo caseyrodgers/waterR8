@@ -10,63 +10,50 @@ function getData() {
 		return;
 	}
 	
-	$.ajax({url: "/api/v1/unit/" + id})
+	$.ajax({url: "/api/v1/sensor/" + id, error: _errorHandler})
 	.then(function(data) {
 		loadDataIntoModels(data);
 	});
-	
-	
 }
 
-
-// for location services
-var _complexId;
-var _companyId;
-
 var _dataModel;
+var _companyId;
+var _complexId;
+var _unitId;
+
 function loadDataIntoModels(dataIn) {
 	 function MyViewModel(data) {
 		 
-		 _complexId = data.complex.id;
 		 _companyId = data.company.id;
+		 _complexId = data.complex.id;
+		 _unitId = data.unit.id;
 		 
-		 this.sensors = ko.observableArray(data.sensors['@items']);
+		 
+		 this.events = ko.observableArray(data.events['@items']);
+		 this.sensor = data.sensor;
 		 this.company = data.company;
 		 this.complex = data.complex;
 		 this.unit = data.unit;
 		 this.networkStatus = data.networkStatus;
 		 this.rowClicked = function(x) {
-			 var r = x.role;
-			 if(r == 'Sensor') {
-				 document.location.href='sensor-events.html?id=' + x.id;
-			 }
-			 else if(r == 'Repeater') {
-				 document.location.href='repeater-events.html?id=' + x.id;
-			 }
-			 else {
-				 showNotify('no such role: ' + r);
-			 }
-			 
+			 document.location.href='sensor-events.html?id=' + x.id;
 		 }
-		 this.deleteRecord = function(x) {
-			 verifyDelete('Unit', function() {
-				 doDeleteRecord(x, "/api/v1/unit/delete/" + _dataModel.unit.id, 
-						 function() { history.go(-1);});
+		 this.deleteRecord = function() {
+			 verifyDelete('Sensor', function() {
+				 doDeleteRecord(_dataModel.sensor.id, "/api/v1/sensor/delete/" + _dataModel.sensor.id, function() {
+					 history.go(-1);	
+				 	});
 			 });
 		 }
 		 
 		 this.updateRecord = function(rec2Up) {
-			 doUpdateRecord(rec2Up, "/api/v1/unit/update", function() {
+			 doUpdateRecord(rec2Up, "/api/v1/sensor/update", function() {
 				 showNotify("server updated");
 				 $('#update-button').attr('disabled',true);
 			 });
 		 }
-	 
-		 this.availableRoles  = ['Sensor', 'Repeater'];
 		 
-		 this.showNetworkMap  = function() {
-			 _showNetworkMap('unit', 'Unit ' + _dataModel.unit.unitNumber,  _dataModel.unit.id);
-		 }
+		 this.availableRoles  = ['Sensor', 'Repeater'];
 	 }
 	 _dataModel = new MyViewModel(dataIn);
 	 ko.applyBindings(_dataModel);
@@ -92,23 +79,27 @@ function createComplex() {
                 label: "Save",
                 className: "btn-success",
                 callback: function () {
-                	
-            		var e = $('#add-form');
-            		if($('#add-form').valid()) {
-                    	var sensorData = {
-                    			unit: _dataModel.unit.id,
-                    			role:$('[name=role]', e).val(),
-                    			sensor:$('[name=sensor]', e).val()
-                    	};
-                    	var serverUrl = "/api/v1/sensor/add";
-                    	saveDataToServer(sensorData, serverUrl, function(pk) {
-                    		sensorData.id = pk;
-                    		_dataModel.sensors.push(sensorData);
+                	$('form').submit(function(x) {
+                		
+                		var e = $('#add-form');
+                		
+                		if($('#add-form').valid()) {
+	                    	var data = {
+	                    			role:$('[name=role]', e).val(),
+	                    			sensor:$('[name=sensor]', e).val()
+	                    	};
+	                    	
+	                    	_dataModel.sensors.push(data);
+	                    	
 	                    	bootbox.hideAll();
-                		}); 
-            		}
+	                    	return false;
+                		}
+                		else {
+                			return false;
+                		}
+                	});
+                	$('#add-form').submit();
                 	return false;
-                	
                 }
             }
         }

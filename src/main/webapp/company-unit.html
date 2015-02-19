@@ -71,7 +71,6 @@
       <!-- InstanceBeginEditable name="MainBody" -->
 		<h1 class="page-header">
 		    <span class='small'>Complex</span>
-		    <span data-bind='text: company.companyName'></span>
             <span data-bind='text: complex.complexName'></span>		    
 		</h1>
 		
@@ -81,7 +80,7 @@
 	               <a data-toggle="collapse" data-target="#info-form">
 	                 Complex Info
 	               </a>
-	               <span class='events-label'><span data-bind="text: networkStatus.eventCount"></span> Events</span>
+	               <span class='events-label'><span data-bind="text: networkStatus.eventCount"></span> Sensor Events</span>
             	   <button type='button' data-bind='click: showNetworkMap' class='network-map-btn btn btn-xs btn-primary'>Network Map</button>
                 </h4>
 		    </div>		
@@ -208,9 +207,6 @@
 		        <button class='btn btn-info' data-bind='click: deleteRecord'>Delete Complex</button>
 		    </div>
 		</div>
-		
-		
-		
 		<div class="panel panel-success">
 		    <div class='panel-heading'>Units</div>
 			<div class="panel-body">
@@ -218,23 +214,20 @@
 					<table class="table table-striped table-hover">
 						<thead>
 							<tr>
-								<th width="15%">Unit Number</th>
-								<th width="15">Type</th>
-								<th width="15%">Beds</th>
-								<th width="15%">Tenants</th>
-								<th width="15">Event Count</th>
-								<th width="15%">Last Event</th>		
+								<th width="25%">Unit Number</th>
+								<th width="25%">Event Count</th>
+								<th width="25%">Sensor Last Event</th>
+								<th width="25%">Last Repeater Seq</th>
+							</tr>
 																
 						</thead>
 						<tbody data-bind="template: {foreach: units,  as: 'unit'}"
 							class="rowlink">
 							<tr data-bind="click: $root.rowClicked">
 								<td data-bind="text: unit.unitNumber"></td>
-                                <td data-bind="text: unit.type"></td>
-								<td data-bind="text: unit.beds"></td>
-                                <td data-bind="text: unit.tenants"></td>
                                 <td data-bind="text: unit.eventCount"></td>
-                                <td data-bind="text: unit.lastEvent"></td>								
+                                <td data-bind="text: unit.lastEvent"></td>
+                                <td data-bind="text: unit.lastRepeaterSeq"></td>								
 							</tr>
 						</tbody>
 					</table>

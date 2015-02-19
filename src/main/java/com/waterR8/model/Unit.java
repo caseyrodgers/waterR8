@@ -9,10 +9,11 @@ public class Unit {
 	int tenants;
 	private int eventCount;
 	private String lastEvent;
+	private int lastRepeaterSeq;
 
 	public Unit() {}
 	
-	public Unit(int id, int complex, String unitNumber, String type, int beds, int tenants, int eventCount, String lastEvent) {
+	public Unit(int id, int complex, String unitNumber, String type, int beds, int tenants, int eventCount, String lastEvent, int lastRepeaterSeq) {
 		this.id = id;
 		this.complex = complex;
 		this.unitNumber = unitNumber;
@@ -21,6 +22,15 @@ public class Unit {
 		this.tenants = tenants;
 		this.eventCount = eventCount;
 		this.lastEvent = lastEvent;
+		this.lastRepeaterSeq = lastRepeaterSeq;
+	}
+
+	public int getLastRepeaterSeq() {
+		return lastRepeaterSeq;
+	}
+
+	public void setLastRepeaterSeq(int lastRepeaterSeq) {
+		this.lastRepeaterSeq = lastRepeaterSeq;
 	}
 
 	public int getEventCount() {
@@ -86,5 +96,4 @@ public class Unit {
 	public void setTenants(int tenants) {
 		this.tenants = tenants;
 	}
-
 }

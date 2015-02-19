@@ -11,11 +11,24 @@ $(document).ready(function(){
 	 })
 	 
 
+	 /** setup role based security */
+	 // only show the Companies link if admin
 	 if(readCookie('role') != 'admin') {
 		 $('#company-bread').css('display','none');
+		 
+		 makeAllReadonly();
 	 }
-	 
 });
+
+
+
+function makeAllReadonly() {
+	$('#info-form input').attr('readonly', 'true');
+	$('#info-form select').attr('readonly', 'true');
+	$('#info-form textarea').attr('readonly', 'true');
+	$('.panel-footer').html('');  // remove edit buttons
+}
+
 
 
 function readCookie(name) {
