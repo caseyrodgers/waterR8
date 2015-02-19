@@ -19,7 +19,6 @@
     <link href="libs/bootstrap/bootstrap-3.3.2-dist/css/bootstrap-theme.min.css"  rel="stylesheet">
     <!-- InstanceBeginEditable name="head" -->
 <jsp:include page="include.jsp"/>
-<script src='js/live.js'></script>
 <style>
    
    .login-panel {
