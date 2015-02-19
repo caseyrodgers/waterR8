@@ -31,7 +31,6 @@ import com.waterR8.model.SensorNetworkStatus;
 import com.waterR8.model.Unit;
 import com.waterR8.model.UnitDetails;
 import com.waterR8.server.ConnectionPool;
-import com.waterR8.util.DateUtils;
 import com.waterR8.util.SqlUtilities;
 
 public class CompanyDao {
@@ -283,7 +282,7 @@ public class CompanyDao {
 	private String getLastEvent(Timestamp timestamp) {
 		String lastTs = "";
 		if(timestamp!=null) {
-			lastTs = DateUtils.getTimeSinceLabel(new Date(timestamp.getTime()));
+			lastTs = _dateFormat.format(timestamp.getTime());
 		}
 		return lastTs;
 	}
