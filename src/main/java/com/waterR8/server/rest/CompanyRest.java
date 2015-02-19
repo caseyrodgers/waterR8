@@ -32,6 +32,12 @@ public class CompanyRest implements Serializable {
     @Path("/companies")
     public String getCompanies() throws Exception {
     	List<Company> companies = CompanyDao.getInstance().getCompanies();
+    	
+//    	 final ObjectMapper mapper = JsonFactory.create();
+//    	 String json = mapper.toJson(companies);
+//    	 Object o = mapper.fromJson(json, List.class);
+    	
+    	
         return JsonWriter.objectToJson(companies);
     }
     

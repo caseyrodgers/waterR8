@@ -1,4 +1,5 @@
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://maven.apache.org/POM/4.0.0"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.waterR8.server</groupId>
@@ -13,17 +14,67 @@
 	<url>http://maven.apache.org</url>
 	<dependencies>
 
+<!-- For JSON Parsing -->
 <dependency>
-	<groupId>postgresql</groupId>
-	<artifactId>postgresql</artifactId>
-	<version>9.1-901-1.jdbc4</version>
+    <groupId>io.fastjson</groupId>
+    <artifactId>boon</artifactId>
+    <version>0.31</version>
 </dependency>
 
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20141113</version>
-        </dependency>
+
+
+		<!-- Shiro with Storm Path Setup -->
+		<dependency>
+			<groupId>org.apache.shiro</groupId>
+			<artifactId>shiro-web</artifactId>
+			<version>1.2.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.stormpath.sdk</groupId>
+			<artifactId>stormpath-sdk-api</artifactId>
+			<version>1.0.RC3.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.stormpath.sdk</groupId>
+			<artifactId>stormpath-sdk-httpclient</artifactId>
+			<version>1.0.RC3.1</version>
+			<scope>runtime</scope>
+		</dependency>
+		<!-- This next runtime dependency is only necessary if you have a REST 
+			API and you want to secure it with OAuth: -->
+		<dependency>
+			<groupId>com.stormpath.sdk</groupId>
+			<artifactId>stormpath-sdk-oauth</artifactId>
+			<version>1.0.RC3.1</version>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.stormpath.shiro</groupId>
+			<artifactId>stormpath-shiro-core</artifactId>
+			<version>0.6.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.stormpath.sdk</groupId>
+			<artifactId>stormpath-sdk-httpclient</artifactId>
+			<version>1.0.RC2</version>
+			<scope>runtime</scope>
+		</dependency>
+		<!-- END Shiro with Storm Path Setup -->
+
+
+
+		<dependency>
+			<groupId>postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>9.1-901-1.jdbc4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20141113</version>
+		</dependency>
 
 		<dependency>
 			<groupId>com.cedarsoftware</groupId>

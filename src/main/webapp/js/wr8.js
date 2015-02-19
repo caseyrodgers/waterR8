@@ -9,10 +9,28 @@ $(document).ready(function(){
 	 $('#info-form select').on('click',function() {
 		 $('#update-button').attr('disabled', false);
 	 })
+	 
+
+	 if(readCookie('role') != 'admin') {
+		 $('#company-bread').css('display','none');
+	 }
+	 
 });
 
+
+function readCookie(name) {
+    var nameEQ = encodeURIComponent(name) + "=";
+    var ca = document.cookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length, c.length));
+    }
+    return null;
+}
+
 function doLogout() {
-	document.location.href = 'index.html';
+	document.location.href = '/logout';
 }
 
 function checkLogin() {
