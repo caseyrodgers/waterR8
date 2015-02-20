@@ -885,7 +885,7 @@ public class CompanyDao {
 				networkMap.add(new NetworkNode(complexNode, unitNode));
 
 				psSensor = connection
-						.prepareStatement("select id, sensor from sensor_assignment where unit = ?");
+						.prepareStatement("select id, sensor from sensor_assignment where role = 'Repeater' and unit = ?");
 				psSensor.setInt(1, unitId);
 
 				ResultSet rsSensor = psSensor.executeQuery();
@@ -895,7 +895,7 @@ public class CompanyDao {
 					int sensorId = rsSensor.getInt("id");
 
 					NetworkGraphNode sensorNode = new NetworkGraphNode(
-							Type.SENSOR, sensorId, "Sensor: " + sensor);
+							Type.SENSOR, sensorId, "Repeater: " + sensor);
 					networkMap.add(new NetworkNode(unitNode, sensorNode));
 
 					sensors.add(sensorNode);
@@ -1050,7 +1050,7 @@ public class CompanyDao {
 					networkMap.add(new NetworkNode(complexNode, unitNode));
 
 					psSensor = connection
-							.prepareStatement("select id, sensor from sensor_assignment where unit = ?");
+							.prepareStatement("select id, sensor from sensor_assignment where role = 'Repeater' and unit = ?");
 					psSensor.setInt(1, unitId);
 
 					ResultSet rsSensor = psSensor.executeQuery();
@@ -1060,7 +1060,7 @@ public class CompanyDao {
 						int sensorId = rsSensor.getInt("id");
 
 						NetworkGraphNode sensorNode = new NetworkGraphNode(
-								Type.SENSOR, sensorId, "Sensor: " + sensor);
+								Type.SENSOR, sensorId, "Repeater: " + sensor);
 						networkMap.add(new NetworkNode(unitNode, sensorNode));
 
 						sensors.add(sensorNode);
@@ -1153,15 +1153,15 @@ public class CompanyDao {
 				int bat = rs.getInt("bat");
 				int rssi = rs.getInt("rssi");
 				int dur = rs.getInt("dur");
+				int seq = rs.getInt("seq");
 
 				SimpleDateFormat dateFormat = new SimpleDateFormat("H:m");
 				boolean found = true;
 				for (NetworkGraphNode n : sensors) {
 					if (n.getId() == sensorId) {
 						
-						String ts = dateFormat.format(timeStamp.getTime());
-						String subLabel = "ts:" + ts + ",h: " + hop + ",b:" + bat + ",r: "
-								+ rssi + ",d:" + dur;
+						String ts = DateUtils.getTimeSinceLabel(new Date(timeStamp.getTime()));
+						String subLabel =  ts + ",hop: " + hop + ",seq:" + seq;
 						n.setSubLabel(subLabel);
 						break;
 					}
