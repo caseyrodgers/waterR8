@@ -1123,7 +1123,7 @@ public class CompanyDao {
 
 		PreparedStatement ps = null;
 		try {
-			String sql = "SELECT sa.id as sensor_id, ts, src,hopcnt,bat,rssi,dur "
+			String sql = "SELECT sa.id as sensor_id, ts, src,hopcnt,bat,rssi,dur,e.seq "
 					+ "from events e  "
 					+ " JOIN sensor_assignment sa on right(concat('00000000', to_hex(CAST(coalesce(sa.sensor, '0') AS integer))), 8) = e.src "
 					+ " where sa.id in "
