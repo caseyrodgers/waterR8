@@ -330,10 +330,12 @@ public class CompanyDao {
 	}
 
 	private String getLastEvent(Timestamp timestamp) {
+
+	    System.out.println("timestamp: " + timestamp);
 		String lastTs = "";
 		if(timestamp!=null) {
 			//lastTs = _dateFormat.format(timestamp.getTime());
-			long time = timestamp.getTime() + (60 * 60 * 8);
+		        long time = timestamp.getTime();
 			lastTs = DateUtils.getTimeSinceLabel(new Date(time));
 		}
 		return lastTs;
@@ -500,7 +502,7 @@ public class CompanyDao {
 	}
 
 	 
-	SimpleDateFormat _dateFormat = new SimpleDateFormat("hh:mm M/d/yy"); // DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+	SimpleDateFormat _dateFormat = new SimpleDateFormat("h:mm a M/d/yy"); // DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
 	
 	// look for events with this src;
 	private Collection<? extends SensorEvent> getSensorEvents(
