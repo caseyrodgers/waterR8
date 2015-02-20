@@ -83,7 +83,7 @@
         
             <div class='panel-heading'>
                 Repeater Info
-                <div style="float: right"><span data-bind='text: networkStatus.eventCount'></span> Events</div>                
+                <div style="float: right;display: none"><span data-bind='text: networkStatus.eventCount'></span> Events</div>                
             </div>
             <div class='panel-body'>
 				<div class="row">
@@ -122,9 +122,10 @@
 					<table class="table table-striped table-hover">
 						<thead>
 							<tr>
-							    <th width="35%">Sequence</th>
-							    <th width="30%">Hop Count</th>
-								<th width="30%">First</th>
+							    <th width="20%">Sequence</th>
+							    <th width="15%">Hop Count</th>
+								<th width="20%">First</th>
+                                                                <th width="35%">Time</th>
 						    </tr>
 						</thead>
 						<tbody data-bind="template: {foreach: events,  as: 'e'}"
@@ -133,6 +134,7 @@
 								<td data-bind='text: e.seq'></td>
                                 <td data-bind='text: e.hopCnt'></td>
                                 <td data-bind='text: e.first'></td>
+                                <td data-bind='text: e.timeStamp'></td>
 							</tr>
 						</tbody>
 					</table>
