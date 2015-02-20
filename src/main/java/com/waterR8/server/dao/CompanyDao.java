@@ -333,7 +333,8 @@ public class CompanyDao {
 		String lastTs = "";
 		if(timestamp!=null) {
 			//lastTs = _dateFormat.format(timestamp.getTime());
-			lastTs = DateUtils.getTimeSinceLabel(new Date(timestamp.getTime()));
+			long time = timestamp.getTime() + (60 * 60 * 8);
+			lastTs = DateUtils.getTimeSinceLabel(new Date(time));
 		}
 		return lastTs;
 	}
