@@ -500,7 +500,7 @@ public class CompanyDao {
 	}
 
 	 
-	SimpleDateFormat _dateFormat = new SimpleDateFormat("hh:m M/d/yy"); // DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+	SimpleDateFormat _dateFormat = new SimpleDateFormat("hh:mm M/d/yy"); // DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
 	
 	// look for events with this src;
 	private Collection<? extends SensorEvent> getSensorEvents(
