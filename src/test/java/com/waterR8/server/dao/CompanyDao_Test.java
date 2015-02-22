@@ -26,7 +26,7 @@ public class CompanyDao_Test extends TestCase {
 	
 	
 	public void testGetCompanyMapForCompany() throws Exception {
-		CompanyNetworkMap networkMap = CompanyDao.getInstance().getCompanyMapForCompany(14);
+		CompanyNetworkMap networkMap = CompanyDao.getInstance().getCompanyMapForCompany(6, null);
 		assertNotNull(networkMap);
 		assertTrue(networkMap.getNetworkNodes().size() > 0);
 	}
@@ -60,7 +60,7 @@ public class CompanyDao_Test extends TestCase {
 	}
 	
 	public void testGetCompanyDetails() throws Exception {
-		CompanyDetails details = CompanyDao.getInstance().getCompanyDetails(1);
+		CompanyDetails details = CompanyDao.getInstance().getCompanyDetails(6);
 		assertNotNull(details);
 		assertNotNull(details.getNetworkStatus());
 	}

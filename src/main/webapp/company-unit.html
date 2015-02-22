@@ -43,6 +43,7 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right">
+            <li><a href="#" onclick='_showNetworkMapForCompany()'>Network Map</a></li>
             <li><a href="#" onclick='doLogout()'>Logout</a></li>
           </ul>
           <!--
@@ -81,7 +82,6 @@
 	                 Complex Info
 	               </a>
 	               <span class='events-label'><span data-bind="text: networkStatus.eventCount"></span> Sensor Events</span>
-            	   <button type='button' data-bind='click: showNetworkMap' class='network-map-btn btn btn-xs btn-primary'>Network Map</button>
                 </h4>
 		    </div>		
 		    <div class='panel-body'>
@@ -312,10 +312,11 @@
     -->
     <script src='js/json-io-utils.js'></script>	
 
-	<!-- InstanceBeginEditable name="AfterJsLoad" -->
-	<script src='js/company-unit.js'></script>
 	<script src='libs/springy/springy.js'></script>
 	<script src="libs/springy/springyui.js"></script>
+
+	<!-- InstanceBeginEditable name="AfterJsLoad" -->
+	<script src='js/company-unit.js'></script>
 	<!-- InstanceEndEditable -->
     
 	

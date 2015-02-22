@@ -15,10 +15,14 @@ function getData() {
 	});
 }
 
-var _detailData;
+var _dataModel;
+var _companyId;
 function loadDataIntoModels(data) {
 	
 	 function MyViewModel() {
+		 
+		 _companyId = data.company.id;
+		 
 		 this.complexes = ko.observableArray(data.complexes['@items']);
 		 this.company = data.company;
 		 this.networkStatus = data.networkStatus;
@@ -42,12 +46,12 @@ function loadDataIntoModels(data) {
 		 }
 		 
 		 this.showNetworkMap = function() {
-			 _showNetworkMap('company', _detailData.company.companyName, _detailData.company.id);
+			 _showNetworkMap('company', _dataModel.company.companyName, _dataModel.company.id);
 		 }
 	 }
 	 
-	 _detailData = new MyViewModel();
-	 ko.applyBindings(_detailData);
+	 _dataModel = new MyViewModel();
+	 ko.applyBindings(_dataModel);
 }
 
 
@@ -75,7 +79,7 @@ function createComplex() {
             		var e = $('#complex-add-form');
             		if($('#complex-add-form').valid()) {
                     	var record = {
-                    			company: _detailData.company.id,
+                    			company: _dataModel.company.id,
                     			complexName:$('[name=complexName]', e).val(),
                     			address: $('[name=address]', e).val(),
                     			city: $('[name=city]', e).val(),
@@ -93,7 +97,7 @@ function createComplex() {
                     	
                     	saveDataToServer(record, "/api/v1/complex/add", function(pk) {
                     		record.id = pk;
-                    		_detailData.complexes.push(record);
+                    		_dataModel.complexes.push(record);
                     		bootbox.hideAll();
                     	});
             		}
