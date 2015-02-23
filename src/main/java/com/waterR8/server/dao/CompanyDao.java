@@ -5,15 +5,19 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.joda.time.DateTime;
+
+import com.google.gwt.aria.client.SelectedValue;
 import com.waterR8.model.Company;
 import com.waterR8.model.CompanyDetails;
 import com.waterR8.model.CompanyNetworkMap;
@@ -24,10 +28,13 @@ import com.waterR8.model.NetworkGraphNode.Type;
 import com.waterR8.model.NetworkNode;
 import com.waterR8.model.RecordOperation;
 import com.waterR8.model.RecordOperation.CrudType;
+import com.waterR8.model.RepeaterInfo;
 import com.waterR8.model.Sensor;
 import com.waterR8.model.SensorDetails;
 import com.waterR8.model.SensorEvent;
 import com.waterR8.model.SensorNetworkStatus;
+import com.waterR8.model.SeqHit;
+import com.waterR8.model.SequenceInfo;
 import com.waterR8.model.Unit;
 import com.waterR8.model.UnitDetails;
 import com.waterR8.server.ConnectionPool;
@@ -503,12 +510,9 @@ public class CompanyDao {
 	SimpleDateFormat _dateFormat = new SimpleDateFormat("hh:mm M/d/yy"); // DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
 	
 	// look for events with this src;
-	private Collection<? extends SensorEvent> getSensorEvents(
+	private List<SensorEvent> getSensorEvents(
 			Connection connection, Sensor sensor) throws Exception {
 		List<SensorEvent> events = new ArrayList<SensorEvent>();
-	
-		
-		
 		try {
 			String sensorSerialInHex = convertSensorIntSerialSsnToHex(sensor.getSensor());
 
@@ -520,20 +524,7 @@ public class CompanyDao {
 				ps.setString(1, sensorSerialInHex);
 				ResultSet rs = ps.executeQuery();
 				while (rs.next()) {
-
-					String src = rs.getString("src");
-					int seq = rs.getInt("seq");
-					int hopCnt = rs.getInt("hopcnt");
-					String first = rs.getString("first");
-					String json = rs.getString("json");
-					String type = rs.getString("type");
-					int battery = rs.getInt("bat");
-					int dur = rs.getInt("dur");
-					long time = rs.getTimestamp("ts").getTime();
-					
-					String timeStamp = _dateFormat.format(new Date(time));
-					events.add(new SensorEvent(rs.getInt("id"), json,type, timeStamp,time,src, seq,
-							hopCnt, first, battery, dur));
+					events.add(getSensorEventRecord(rs));
 				}
 			} finally {
 				SqlUtilities.releaseResources(null, ps, null);
@@ -543,6 +534,21 @@ public class CompanyDao {
 		}
 
 		return events;
+	}
+
+	private SensorEvent getSensorEventRecord(ResultSet rs) throws Exception {
+		String src = rs.getString("src");
+		int seq = rs.getInt("seq");
+		int hopCnt = rs.getInt("hopcnt");
+		String first = rs.getString("first");
+		String json = rs.getString("json");
+		String type = rs.getString("type");
+		int battery = rs.getInt("bat");
+		int dur = rs.getInt("dur");
+		long time = rs.getTimestamp("ts").getTime();
+		
+		String timeStamp = _dateFormat.format(new Date(time));
+		return new SensorEvent(rs.getInt("id"), json,type, timeStamp,time,src, seq,hopCnt, first, battery, dur);		
 	}
 
 	/**
@@ -566,6 +572,11 @@ public class CompanyDao {
 
 		return ssnInHex;
 	}
+	
+	private int convertSensorHexSerialSsnToInt(String ssnInHex) {
+		return Integer.parseInt(ssnInHex.trim(), 16 );
+	}
+
 
 	private Sensor getSensor(Connection connection, int id) throws Exception {
 		PreparedStatement ps = null;
@@ -855,7 +866,7 @@ public class CompanyDao {
 			connection = ConnectionPool.getConnection();
 
 			// add the company, root node
-			NetworkGraphNode rootNode = new NetworkGraphNode(Type.ROOT, 0,
+			NetworkGraphNode rootNode = new NetworkGraphNode(Type.ROOT, 0,null,
 					"Root");
 
 			psComplex = connection
@@ -869,7 +880,7 @@ public class CompanyDao {
 
 			String complexName = rsComplex.getString("complex_name");
 			NetworkGraphNode complexNode = new NetworkGraphNode(Type.COMPLEX,
-					complexId, "Complex: " + complexName);
+					complexId, null,"Complex: " + complexName);
 			networkMap.add(new NetworkNode(rootNode, complexNode));
 
 			psUnit = connection
@@ -881,7 +892,7 @@ public class CompanyDao {
 				String unitNumber = rsUnit.getString("unit_number");
 				int unitId = rsUnit.getInt("id");
 				NetworkGraphNode unitNode = new NetworkGraphNode(Type.UNIT,
-						unitId, "Unit: " + unitNumber);
+						unitId, null,"Unit: " + unitNumber);
 				networkMap.add(new NetworkNode(complexNode, unitNode));
 
 				psSensor = connection
@@ -895,7 +906,7 @@ public class CompanyDao {
 					int sensorId = rsSensor.getInt("id");
 
 					NetworkGraphNode sensorNode = new NetworkGraphNode(
-							Type.SENSOR, sensorId, "Repeater: " + sensor);
+							Type.SENSOR, sensorId,null, "Repeater: " + sensor);
 					networkMap.add(new NetworkNode(unitNode, sensorNode));
 
 					sensors.add(sensorNode);
@@ -919,8 +930,7 @@ public class CompanyDao {
 
 	/**
 	 * TODO: combine all getMap into single dynamic one
-	 * 
-	 * @param unitId
+	 * 	 * @param unitId
 	 * @return
 	 * @throws Exception
 	 */
@@ -940,8 +950,7 @@ public class CompanyDao {
 			connection = ConnectionPool.getConnection();
 
 			// add the company, root node
-			NetworkGraphNode rootNode = new NetworkGraphNode(Type.ROOT, 0,
-					"Root");
+			NetworkGraphNode rootNode = new NetworkGraphNode(Type.ROOT, 0,null,"Root");
 
 			psUnit = connection
 					.prepareStatement("select id, unit_number from unit where id = ?");
@@ -953,7 +962,7 @@ public class CompanyDao {
 
 			String unitNumber = rsUnit.getString("unit_number");
 
-			NetworkGraphNode unitNode = new NetworkGraphNode(Type.UNIT, unitId,
+			NetworkGraphNode unitNode = new NetworkGraphNode(Type.UNIT, unitId,null,
 					"Unit: " + unitNumber);
 			networkMap.add(new NetworkNode(rootNode, unitNode));
 
@@ -968,7 +977,7 @@ public class CompanyDao {
 				int sensorId = rsSensor.getInt("id");
 
 				NetworkGraphNode sensorNode = new NetworkGraphNode(Type.SENSOR,
-						sensorId, "Sensor: " + sensor);
+						sensorId, null,"Repeater: " + sensor);
 				networkMap.add(new NetworkNode(unitNode, sensorNode));
 
 				sensors.add(sensorNode);
@@ -987,8 +996,9 @@ public class CompanyDao {
 
 		return companyMap;
 	}
-
-	public CompanyNetworkMap getCompanyMapForCompany(int companyId)
+	
+	
+	public CompanyNetworkMap getCompanyMapForCompany(int companyId, SequenceInfo selectedSequence)
 			throws Exception {
 
 		List<NetworkNode> networkMap = new ArrayList<NetworkNode>();
@@ -1003,7 +1013,7 @@ public class CompanyDao {
 
 		try {
 
-			List<NetworkGraphNode> sensors = new ArrayList<NetworkGraphNode>();
+			List<NetworkGraphNode> sensorsInCompany = new ArrayList<NetworkGraphNode>();
 
 			connection = ConnectionPool.getConnection();
 
@@ -1018,10 +1028,272 @@ public class CompanyDao {
 			psCompany.close();
 
 			// add the company, root node
-			NetworkGraphNode rootNode = new NetworkGraphNode(Type.ROOT, 0,
+			NetworkGraphNode rootNode = new NetworkGraphNode(Type.ROOT, 0,null,
 					"Root");
 			NetworkGraphNode companyNode = new NetworkGraphNode(Type.COMPANY,
-					companyId, "Company: " + companyName);
+					companyId,null, "Company: " + companyName);
+			networkMap.add(new NetworkNode(rootNode, companyNode));
+
+			
+			DateTime today = new DateTime().withTimeAtStartOfDay();
+			
+			List<SequenceInfo> seqNumbers = getRepeaterSequenceNumbers(connection, new Date(today.getMillis()));
+			int lastBeaconSeq = 0;
+			if(selectedSequence != null) {
+				lastBeaconSeq = selectedSequence.getSeq();
+			}
+			else {
+				lastBeaconSeq = seqNumbers.size()==0?0:seqNumbers.get(0).getSeq();
+			}
+			List<NetworkNode> repeaterMap = createRepeaterMap(connection, companyId, lastBeaconSeq);
+			
+			// List<RepeaterInfo> repeaterInfo = getRepeaterInfo(connection, companyId, seqNumbers);
+			
+
+			// for each repeater in this company
+
+			fixupSensorLastValues(connection, sensorsInCompany);
+
+			companyMap.setNetworkNodes(repeaterMap);
+			companyMap.setAllRepeaters(getRepeatersInCompany(connection, companyId));
+			companyMap.setSequenceNumbers(seqNumbers);
+			companyMap.setCurrentSequence(lastBeaconSeq);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			SqlUtilities.releaseResources(null, psCompany, connection);
+			SqlUtilities.releaseResources(null, psComplex, null);
+			SqlUtilities.releaseResources(null, psUnit, null);
+			SqlUtilities.releaseResources(null, psSensor, null);
+		}
+
+		return companyMap;
+	}
+
+	private List<String> getRepeatersInSequence(Connection connection,int companyId, List<SequenceInfo> seqNumbers) throws Exception {
+		PreparedStatement ps=null;
+		List<String> repeaterSrc = new ArrayList<String>();
+		
+		String il=null;
+		for(SequenceInfo r: seqNumbers) {
+			if(il!=null) {
+				il += ",";
+			}
+			il += r.getSeq();
+		}
+		
+		try {
+			String sql =
+					" select distinct seq, src, count(*) " +
+			        " from events " +
+			        " where seq in (" + il + ")" + 
+			        " and type = 132 " +
+			        " group by seq, src";
+			ps = connection.prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()) {
+				int seq = rs.getInt("seq");
+				String src = rs.getString("src");
+				
+				
+				
+			}
+		}
+		finally {
+			SqlUtilities.releaseResources(null, ps, null);
+		}
+		return repeaterSrc;
+	}
+
+
+	private List<NetworkNode> createRepeaterMap(Connection connection,int companyId, int lastBeaconSeq) throws Exception {
+		
+		PreparedStatement ps=null;
+		List<NetworkNode> network = new ArrayList<NetworkNode>();
+		
+		try {
+
+			Map<Integer, List<Sensor>> hopMap = new HashMap<Integer, List<Sensor>>();
+			
+			List<SensorEvent> events = getSensorEventsForSeq(connection, companyId, lastBeaconSeq);
+			
+			Company company = getCompany(companyId);
+			NetworkGraphNode root = new NetworkGraphNode(Type.ROOT, 0,null, company.getCompanyName());
+
+			buildNetworkTree(network, root, null,1, events);
+		}
+		finally {
+			SqlUtilities.releaseResources(null, ps, null);
+		}
+		return network;		
+	}
+
+	private void buildNetworkTree(List<NetworkNode> network, NetworkGraphNode parent,String parentSrc, int hop, List<SensorEvent> events) {
+		for(SensorEvent e: events) {
+			//System.out.println("Checking: hop: " + hop + ", " + " parentSrc: " + parentSrc + ", src: " + e.getSrc());
+
+			if(e.getHopCnt() == hop) {
+				
+				//System.out.println("Match hopcnt: " + hop + " , " + e.getSrc());
+				boolean add=false;
+				if(hop == 1 && parent.getType() == Type.ROOT) {
+					add=true;
+				}
+				else if(e.getFirst().equals(parentSrc)) {
+					add=true;
+				}
+				
+				if(add) {
+					
+					if(!alreadyInList(e, network)) {
+						
+						//System.out.println("Adding: hop: " + e.getHopCnt() + ", parent: " + parentSrc + ",  first: " +  e.getFirst() + ", src: " + e.getSrc());
+						String label =  convertSensorHexSerialSsnToInt(e.getSrc()) + ",h:" + e.getHopCnt();
+						
+						System.out.println("Adding: " + label);
+						
+						NetworkGraphNode child = new NetworkGraphNode(Type.REPEATER, e.getId(), e.getSrc(), label);
+						network.add(new NetworkNode(parent, child));
+						
+						// get all children of this child
+						buildNetworkTree(network, child, e.getSrc(), hop+1, events);
+					}
+				}
+			}
+		}
+	}
+
+	private boolean alreadyInList(SensorEvent e, List<NetworkNode> network) {
+		for(NetworkNode n: network) {
+			if(n.getDeviceChild().getSrc().equals(e.getSrc()) || n.getDeviceParent().getSrc().equals(e.getSrc())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private List<SensorEvent> getSensorEventsForSeq(Connection connection,
+			int companyId, int lastBeaconSeq) throws Exception {
+		PreparedStatement ps=null;
+		List<SensorEvent> events = new ArrayList<SensorEvent>();
+		try {
+			String sql = 
+					"select e.* " +
+							"from events e " +
+							"  join sensor_assignment sa on  RIGHT(Concat('00000000', To_hex(Cast( COALESCE(sa.sensor,'0') AS INTEGER))), 8) = e.src " +
+							"  join unit u on u.id = sa.unit " +
+							"  join complex c on c.id = u.complex " +
+							"where c.company = ? " +
+							"and e.type = 132 " +
+							"and e.seq = ? ";
+			
+			ps = connection.prepareStatement(sql);
+			ps.setInt(1, companyId);
+			ps.setInt(2,  lastBeaconSeq);
+			
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()) {
+				events.add(getSensorEventRecord(rs));
+			}
+		}
+		finally {
+			SqlUtilities.releaseResources(null, ps, null);
+		}
+		return events;		
+	}
+
+	private List<Sensor> getRepeatersThatRespondedToThisOne(
+			Connection connection, int companyId, Sensor sensorParent, int lastBeaconSeq, int h) throws Exception {
+		PreparedStatement ps=null;
+		List<Sensor> repeaters = new ArrayList<Sensor>();
+		try {
+			
+			String sql = 
+					"select e.id, e.first " +
+							"from events e " +
+							"  join sensor_assignment sa on  RIGHT(Concat('00000000', To_hex(Cast( COALESCE(sa.sensor,'0') AS INTEGER))), 8) = e.src " +
+							"  join unit u on u.id = sa.unit " +
+							"  join complex c on c.id = u.complex " +
+							"where c.company = ? " +
+							"and e.type = 132 " +
+							"and e.seq = ? " +
+							"and e.first = RIGHT(Concat('00000000', To_hex(Cast( COALESCE(" + sensorParent.getSensor() + ",'0') AS INTEGER))), 8)";
+			
+			ps = connection.prepareStatement(sql);
+			ps.setInt(1, companyId);
+			ps.setInt(2,  lastBeaconSeq);
+			
+		}
+		finally {
+			SqlUtilities.releaseResources(null, ps, null);
+		}
+		return repeaters;		
+	}
+
+	private List<Sensor> getRepeatersInCompany(Connection connection,
+			int companyId) throws Exception {
+		
+		PreparedStatement ps=null;
+		List<Sensor> repeaters = new ArrayList<Sensor>();
+		try {
+
+			String sql = 
+			     "select sa.id, u.id as unit_id, sa.sensor " +
+					"  from sensor_assignment sa  " +
+					"      join unit u on u.id = sa.unit " +
+					"     join complex c on c.id = u.complex " +
+					"where c.company = ? " +
+					"and sa.role = 'Repeater'";
+			
+			ps = connection.prepareStatement(sql);
+			ps.setInt(1,  companyId);
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()) {
+				repeaters.add(new Sensor(rs.getInt("id"), rs.getInt("unit_id"), "Repeater", rs.getString("sensor")));
+			}
+
+		}
+		finally {
+			SqlUtilities.releaseResources(null, ps, null);
+		}
+		return repeaters;
+	}
+
+	public CompanyNetworkMap getCompanyMapForCompany_old(int companyId)
+			throws Exception {
+
+		List<NetworkNode> networkMap = new ArrayList<NetworkNode>();
+
+		CompanyNetworkMap companyMap = new CompanyNetworkMap();
+
+		Connection connection = null;
+		PreparedStatement psCompany = null;
+		PreparedStatement psComplex = null;
+		PreparedStatement psUnit = null;
+		PreparedStatement psSensor = null;
+
+		try {
+
+			List<NetworkGraphNode> sensorsInCompany = new ArrayList<NetworkGraphNode>();
+
+			connection = ConnectionPool.getConnection();
+
+			psCompany = connection
+					.prepareStatement("select company_name from company where id = ?");
+			psCompany.setInt(1, companyId);
+			ResultSet rs = psCompany.executeQuery();
+			if (!rs.next()) {
+				throw new Exception("no company found to build network graph");
+			}
+			String companyName = rs.getString("company_name");
+			psCompany.close();
+
+			// add the company, root node
+			NetworkGraphNode rootNode = new NetworkGraphNode(Type.ROOT, 0,null,
+					"Root");
+			NetworkGraphNode companyNode = new NetworkGraphNode(Type.COMPANY,
+					companyId, null,"Company: " + companyName);
 			networkMap.add(new NetworkNode(rootNode, companyNode));
 
 			psComplex = connection
@@ -1035,7 +1307,7 @@ public class CompanyDao {
 				int complexId = rsComplex.getInt("id");
 
 				NetworkGraphNode complexNode = new NetworkGraphNode(
-						Type.COMPLEX, complexId, "Complex: " + complexName);
+						Type.COMPLEX, complexId, null,"Complex: " + complexName);
 				networkMap.add(new NetworkNode(companyNode, complexNode));
 
 				psUnit = connection
@@ -1046,7 +1318,7 @@ public class CompanyDao {
 					String unitNumber = rsUnit.getString("unit_number");
 					int unitId = rsUnit.getInt("id");
 					NetworkGraphNode unitNode = new NetworkGraphNode(Type.UNIT,
-							unitId, "Unit: " + unitNumber);
+							unitId, null,"Unit: " + unitNumber);
 					networkMap.add(new NetworkNode(complexNode, unitNode));
 
 					psSensor = connection
@@ -1060,15 +1332,15 @@ public class CompanyDao {
 						int sensorId = rsSensor.getInt("id");
 
 						NetworkGraphNode sensorNode = new NetworkGraphNode(
-								Type.SENSOR, sensorId, "Repeater: " + sensor);
+								Type.REPEATER, sensorId, null,sensor);
 						networkMap.add(new NetworkNode(unitNode, sensorNode));
 
-						sensors.add(sensorNode);
+						sensorsInCompany.add(sensorNode);
 					}
 				}
 			}
 
-			fixupSensorLastValues(connection, sensors);
+			fixupSensorLastValues(connection, sensorsInCompany);
 
 			companyMap.setNetworkNodes(networkMap);
 
@@ -1172,6 +1444,91 @@ public class CompanyDao {
 			SqlUtilities.releaseResources(null, ps, null);
 		}
 	}
+	
+	
+	/** Return list of distinct sequence numbers since a given date
+	 * 
+	 * @param conn
+	 * @param since
+	 * @return
+	 * @throws Exception
+	 */
+	public List<SequenceInfo> getRepeaterSequenceNumbers(Connection conn, Date since) throws Exception {
+		List<SequenceInfo> li = new ArrayList<SequenceInfo>();
+		PreparedStatement ps=null;
+		PreparedStatement psSrc=null;
+		try {
+			
+			String sql = 
+					"select distinct e.seq, sr.seq_run_date, sr.max_id " +
+							"from events e " +
+							"  left join ( " +
+							"       select e.seq, max(id) as max_id, max(ts) as seq_run_date " +
+							"       from  events e " +
+							"       where ts > ? " +
+							"       and type = 132 " +
+							"       group by e.seq " +
+							"   ) sr on sr.seq = e.seq " +
+							"where ts > ? " +
+							" and type = 132 " +
+							"order by max_id desc";
+			
+			ps = conn.prepareStatement(sql);
+			ps.setTimestamp(1,  new Timestamp(since.getTime()));
+			ps.setTimestamp(2,  new Timestamp(since.getTime()));
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()) {
+				int seq = rs.getInt("seq");
+
+				Date seqDate = new Date(rs.getTimestamp("seq_run_date").getTime());
+				String label = seq + "  (" + DateUtils.getTimeSinceLabel(seqDate) + ")";
+				SequenceInfo seqInfo = new SequenceInfo(seq, seqDate, label);
+				li.add(seqInfo);
+			}
+
+			
+			String inList = "";
+			for(SequenceInfo l : li) {
+				if(inList.length() > 0) {
+					inList += ",";
+				}
+				inList += l.getSeq();
+			}
+			sql = 
+					"select distinct seq, e.src, e.hopcnt " +
+			        " from events e " +
+					" where seq in (" + inList + ")" +
+			        " and type = 132 " +
+			        " and ts > ? " ;
+			
+			psSrc = conn.prepareStatement(sql);
+			psSrc.setTimestamp(1,  new Timestamp(since.getTime()));
+			rs = psSrc.executeQuery();
+			while(rs.next()) {
+				String src = rs.getString("src");
+				int srcInDec = convertSensorHexSerialSsnToInt(src);
+				int seq = rs.getInt("seq");
+				int hopCnt = rs.getInt("hopcnt");
+				
+				for(SequenceInfo l : li) {
+					if(l.getSeq() == seq) {
+						Sensor s = new Sensor(0, 0, "Repeater","" + srcInDec);
+						l.getDevicesThatResponded().add(new SeqHit(s, hopCnt, 0));
+						break;
+					}
+				}
+				
+			}
+			
+			
+		}
+		finally {
+			SqlUtilities.releaseResources(null, ps, null);
+			SqlUtilities.releaseResources(null, psSrc, null);
+		}
+		return li;
+	}
+
 
 	public RecordOperation updateCompany(Company company) throws Exception {
 		Connection connection = null;

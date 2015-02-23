@@ -8,8 +8,8 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <!-- InstanceBeginEditable name="doctitle" -->
-    <title>Water R8 Administration Help</title>
-    <!-- InstanceEndEditable -->
+<title>Network Map</title>
+<!-- InstanceEndEditable -->
     <!-- Bootstrap core CSS -->
     <link href="libs/bootstrap/bootstrap-3.3.2-dist/css/bootstrap.css" rel="stylesheet" >
 
@@ -24,7 +24,7 @@
 
     <link href="css/wr8.css"  rel="stylesheet">    
     <!-- InstanceBeginEditable name="head" -->
-    <!-- InstanceEndEditable -->
+<!-- InstanceEndEditable -->
   </head>
 
   <body>
@@ -57,7 +57,9 @@
     <div class="row">  
         <div class="span6">  
             <ul class="breadcrumb">
-              <!-- InstanceBeginEditable name="BreadCrumb" -->BreadCrumb<!-- InstanceEndEditable -->  
+              <!-- InstanceBeginEditable name="BreadCrumb" -->
+				<li><a href='#' onclick='history.go(-1)'>&lt;&lt;&nbsp;Back</a></li>
+				<!-- InstanceEndEditable -->  
             
            </ul>  
        </div>  
@@ -66,9 +68,18 @@
     <div class='notifications top-right'></div>
     <div class="container">
       <!-- InstanceBeginEditable name="MainBody" -->
-            <p>Export</p>
-            <p>&nbsp;</p>
-            <!-- InstanceEndEditable -->
+		<h1 class="page-header">
+		    <span class='small'>Network Map</span>
+		</h1>
+
+        <div class='panel panel-default' style='width: 750px;'>
+            <div class='panel-heading'>Network Map</div>
+            <div class='panel-body'>
+                 <div id='network-graph'>&nbsp;</div>    
+            </div>
+        </div>
+		
+		<!-- InstanceEndEditable -->
     </div>
 
   <!-- Bootstrap core JavaScript
@@ -95,6 +106,11 @@
 	<script src="libs/springy/springyui.js"></script>
 
 	<!-- InstanceBeginEditable name="AfterJsLoad" -->
+	   	<script src='../js/live.js'></script>
+	<script src='libs/springy/springy.js'></script>
+	<script src="libs/springy/springyui.js"></script>
+	
+	<script src="js/network_map.js"></script>
 	<!-- InstanceEndEditable -->
     
 	

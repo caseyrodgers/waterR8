@@ -18,6 +18,7 @@ import com.cedarsoftware.util.io.JsonWriter;
 import com.waterR8.model.Company;
 import com.waterR8.model.Complex;
 import com.waterR8.model.Sensor;
+import com.waterR8.model.SequenceInfo;
 import com.waterR8.model.Unit;
 import com.waterR8.server.dao.CompanyDao;
 
@@ -204,9 +205,14 @@ public class CompanyRest implements Serializable {
     
     
     @GET
+    @POST
     @Path("company/network/{companyId}")
-    public String getNetworkMapForCompany(@PathParam("companyId") int id) throws Exception  {
-    	return JsonWriter.objectToJson(CompanyDao.getInstance().getCompanyMapForCompany(id));
+    public String getNetworkMapForCompany(@PathParam("companyId") int id, String dataJson) throws Exception  {
+    	SequenceInfo selectedSequence=null;
+    	if(dataJson != null && dataJson.length() > 0) {
+    		selectedSequence = (SequenceInfo)JsonReader.jsonToJava(dataJson);
+    	}
+    	return JsonWriter.objectToJson(CompanyDao.getInstance().getCompanyMapForCompany(id, selectedSequence));
 	}
     @GET
     @Path("complex/network/{complexId}")
