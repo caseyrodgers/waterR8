@@ -25,16 +25,18 @@ public class CompanyDao_Test extends TestCase {
 	}
 	
 	
+	int COMPANY=18;
 	public void testGetCompanyMapForCompany() throws Exception {
-		CompanyNetworkMap networkMap = CompanyDao.getInstance().getCompanyMapForCompany(6, null);
+		CompanyNetworkMap networkMap = CompanyDao.getInstance().getCompanyMapForCompany(COMPANY, null);
 		assertNotNull(networkMap);
-		assertTrue(networkMap.getNetworkNodes().size() > 0);
+		assertTrue(networkMap.getNetworkNodes() != null);
 	}
 	
+	int COMPLEX=5;
 	public void testGetCompanyMapForComplex() throws Exception {
-		CompanyNetworkMap networkMap = CompanyDao.getInstance().getCompanyMapForComplex(5);
+		CompanyNetworkMap networkMap = CompanyDao.getInstance().getCompanyMapForComplex(COMPLEX);
 		assertNotNull(networkMap);
-		assertTrue(networkMap.getNetworkNodes().size() > 0);
+		assertTrue(networkMap.getNetworkNodes() != null);
 	}
 	
 	public void testNetworkStatus() throws Exception {
@@ -60,7 +62,7 @@ public class CompanyDao_Test extends TestCase {
 	}
 	
 	public void testGetCompanyDetails() throws Exception {
-		CompanyDetails details = CompanyDao.getInstance().getCompanyDetails(6);
+		CompanyDetails details = CompanyDao.getInstance().getCompanyDetails(COMPANY);
 		assertNotNull(details);
 		assertNotNull(details.getNetworkStatus());
 	}
@@ -73,20 +75,20 @@ public class CompanyDao_Test extends TestCase {
 	}
 	
 	public void testGetComplexDetails() throws Exception {
-		ComplexDetails details = CompanyDao.getInstance().getComplexDetails(1);
+		ComplexDetails details = CompanyDao.getInstance().getComplexDetails(9);
 		assertNotNull(details);
 		assertTrue(details.getComplex().getId() > 0);
 		assertNotNull(details.getNetworkStatus());
 	}
 	
 	
+	int UNIT=10;
 	public void testGetUnitDetails() throws Exception {
-		UnitDetails details = CompanyDao.getInstance().getUnitDetails(1);
+		UnitDetails details = CompanyDao.getInstance().getUnitDetails(UNIT);
 		assertNotNull(details);
 		assertNotNull(details.getSensors());
 		assertTrue(details.getSensors().size() > 0);
 		assertNotNull(details.getUnit().getUnitNumber());
-		assertTrue(details.getUnit().getLastRepeaterSeq()>0);
 	}
 	
 	public void testGetSensorDetails() throws Exception {
