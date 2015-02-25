@@ -126,7 +126,7 @@ public class CompanyDao {
 			String sql = " select count(*) as event_count "
 					+ " from events e"
 					+ " where src in ("
-					+ "     select right(concat('00000000', to_hex(CAST(coalesce(sa.sensor, '0') AS integer))), 8) as sensor_src"
+					+ "     select cast(sa.sensor as integer)"
 					+ " 	from   company c"
 					+ " 	   JOIN complex  x on x.company = c.id"
 					+ " 	   JOIN unit u on u.complex = x.id"
@@ -252,12 +252,7 @@ public class CompanyDao {
 					"                         JOIN sensor_assignment sa  " +
 					"                           ON sa.unit = u.id  " +
 					"                         JOIN events e  " +
-					"                           ON RIGHT(Concat('00000000', To_hex(Cast(  " +
-					"                                                       COALESCE(sa.sensor,  " +
-					"                                                       '0') AS  " +
-					"                                                       INTEGER)))  " +
-					"                              , 8)  " +
-					"                              = e.src  " +
+					"                           ON e.src = cast(sa.sensor as integer) " +
 					"                  WHERE  u.complex = ?  " +
 					"                         AND e.type = 2  " +
 					"                  GROUP  BY u.id) ec  " +
@@ -267,13 +262,7 @@ public class CompanyDao {
 					"                  FROM   unit u  " +
 					"                         JOIN sensor_assignment sa  " +
 					"                           ON sa.unit = u.id  " +
-					"                         JOIN events e  " +
-					"                           ON RIGHT(Concat('00000000', To_hex(Cast(  " +
-					"                                                       COALESCE(sa.sensor,  " +
-					"                                                       '0') AS  " +
-					"                                                       INTEGER)))  " +
-					"                              , 8)  " +
-					"                              = e.src  " +
+					"                         JOIN events e on e.src = cast(sa.sensor as integer)  " +
 					"                  WHERE  u.complex = ?  " +
 					"                         AND e.type = 2  " +
 					"                  GROUP  BY u.id) le  " +
@@ -284,24 +273,13 @@ public class CompanyDao {
 					"                         JOIN sensor_assignment sa  " +
 					"                           ON sa.unit = u.id  " +
 					"                         JOIN events e  " +
-					"                           ON RIGHT(Concat('00000000', To_hex(Cast(  " +
-					"                                                       COALESCE(sa.sensor, '0')  " +
-					"                                                       AS  " +
-					"                                                       INTEGER)))  " +
-					"                              , 8)  " +
-					"                              = e.src  " +
+					"                           ON e.src = cast(sa.sensor as integer)  " +
 					"                         JOIN (SELECT u.id,  " +
 					"                                      Max(e.id) AS max_id  " +
 					"                               FROM   unit u  " +
 					"                                      JOIN sensor_assignment sa  " +
 					"                                        ON sa.unit = u.id  " +
-					"                                      JOIN events e  " +
-					"                                        ON RIGHT(Concat('00000000', To_hex(Cast(  " +
-					"       COALESCE(sa.sensor, '0')  " +
-					"       AS  " +
-					"       INTEGER)))  " +
-					"       , 8)  " +
-					"       = e.src  " +
+					"                                      JOIN events e  on e.src = cast(sa.sensor as integer) " +
 					"       WHERE  u.complex = ?  " +
 					"       AND e.type = 132  " +
 					"       GROUP  BY u.id) me  " +
@@ -396,7 +374,7 @@ public class CompanyDao {
 							"LEFT JOIN ( " +
 							"       select sa.id, count(*) as event_count " +
 							"         from sensor_assignment sa " +
-							"         join events e on right(concat('00000000', to_hex(CAST(coalesce(sa.sensor, '0') AS integer))), 8) = e.src " +
+							"         join events e on cast(sa.sensor as integer) = e.src " +
 							"      where sa.unit= ? " +
 							"      group by sa.id " +
 							"  ) ec on ec.id = sa.id " +
@@ -404,7 +382,7 @@ public class CompanyDao {
 							"LEFT JOIN ( " +
 							"       select sa.id, max(ts) as last_sensor_event " +
 							"         from sensor_assignment sa " +
-							"         join events e on right(concat('00000000', to_hex(CAST(coalesce(sa.sensor, '0') AS integer))), 8) = e.src " +
+							"         join events e on cast(sa.sensor as integer) = e.src " +
 							"      where sa.unit = ? " +
 							"      group by sa.id " +
 							"  ) le on le.id = sa.id " +
@@ -435,7 +413,7 @@ public class CompanyDao {
 		Sensor sensor = new Sensor(rs.getInt("id"), rs.getInt("unit"),
 				rs.getString("role"), ssn);
 		
-		sensor.setSensorHex(convertSensorIntSerialSsnToHex(ssn));
+		sensor.setSensorHex(_convertSensorIntSerialSsnToHex(ssn));
 		
 		return sensor;
 	}
@@ -514,14 +492,11 @@ public class CompanyDao {
 			Connection connection, Sensor sensor) throws Exception {
 		List<SensorEvent> events = new ArrayList<SensorEvent>();
 		try {
-			String sensorSerialInHex = convertSensorIntSerialSsnToHex(sensor.getSensor());
-
 			PreparedStatement ps = null;
-
 			try {
-				String sql = "select * from events where src = ? order by ts desc limit 100";
+				String sql = "select * from events where src = cast(? as integer) order by ts desc limit 100";
 				ps = connection.prepareStatement(sql);
-				ps.setString(1, sensorSerialInHex);
+				ps.setString(1, sensor.getSensor());
 				ResultSet rs = ps.executeQuery();
 				while (rs.next()) {
 					events.add(getSensorEventRecord(rs));
@@ -561,7 +536,7 @@ public class CompanyDao {
 	 * @param sensorIdInDecimal
 	 * @return
 	 */
-	private String convertSensorIntSerialSsnToHex(String ssnInDecAsStr) {
+	private String _convertSensorIntSerialSsnToHex(String ssnInDecAsStr) {
 		int ssnInDec = Integer.parseInt(ssnInDecAsStr);
 		String ssnInHex = Integer.toHexString(ssnInDec);
 
@@ -1061,6 +1036,7 @@ public class CompanyDao {
 
 		} catch (Exception e) {
 			e.printStackTrace();
+			throw e;
 		} finally {
 			SqlUtilities.releaseResources(null, psCompany, connection);
 			SqlUtilities.releaseResources(null, psComplex, null);
@@ -1181,7 +1157,7 @@ public class CompanyDao {
 			String sql = 
 					"select e.* " +
 							"from events e " +
-							"  join sensor_assignment sa on  RIGHT(Concat('00000000', To_hex(Cast( COALESCE(sa.sensor,'0') AS INTEGER))), 8) = e.src " +
+							"  join sensor_assignment sa on  cast(sa.sensor as integer) = e.src " +
 							"  join unit u on u.id = sa.unit " +
 							"  join complex c on c.id = u.complex " +
 							"where c.company = ? " +
@@ -1212,17 +1188,18 @@ public class CompanyDao {
 			String sql = 
 					"select e.id, e.first " +
 							"from events e " +
-							"  join sensor_assignment sa on  RIGHT(Concat('00000000', To_hex(Cast( COALESCE(sa.sensor,'0') AS INTEGER))), 8) = e.src " +
+							"  join sensor_assignment sa on  cast(sa.sensor as integer) = e.src " +
 							"  join unit u on u.id = sa.unit " +
 							"  join complex c on c.id = u.complex " +
 							"where c.company = ? " +
 							"and e.type = 132 " +
 							"and e.seq = ? " +
-							"and e.first = RIGHT(Concat('00000000', To_hex(Cast( COALESCE(" + sensorParent.getSensor() + ",'0') AS INTEGER))), 8)";
+							"and e.first = cast(? as integer)";
 			
 			ps = connection.prepareStatement(sql);
 			ps.setInt(1, companyId);
 			ps.setInt(2,  lastBeaconSeq);
+			ps.setString(3, sensorParent.getSensor());
 			
 		}
 		finally {
@@ -1397,7 +1374,7 @@ public class CompanyDao {
 		try {
 			String sql = "SELECT sa.id as sensor_id, ts, src,hopcnt,bat,rssi,dur,e.seq "
 					+ "from events e  "
-					+ " JOIN sensor_assignment sa on right(concat('00000000', to_hex(CAST(coalesce(sa.sensor, '0') AS integer))), 8) = e.src "
+					+ " JOIN sensor_assignment sa on cast(sa.sensor as integer) = e.src "
 					+ " where sa.id in "
 					+ inList 
 					+ " order by sa.id, ts desc";
