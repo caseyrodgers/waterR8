@@ -35,7 +35,7 @@ public class NetworkDevice {
 	int id;
 	int unit;
 	String role;
-	String sensor;
+	int sensor;
 	String sensorHex;
 	private Object roleLabel;
 	int eventCount;
@@ -43,7 +43,7 @@ public class NetworkDevice {
 	
 	public NetworkDevice() {}
 		
-	protected NetworkDevice(String role, int id,int unit, String sensor) {
+	protected NetworkDevice(String role, int id,int unit, int sensor) {
 		this.role = role;
 		this.id = id;
 		this.unit = unit;
@@ -106,11 +106,11 @@ public class NetworkDevice {
 		this.role = role;
 	}
 
-	public String getSensor() {
+	public int getSensor() {
 		return sensor;
 	}
 
-	public void setSensor(String sensor) {
+	public void setSensor(int sensor) {
 		this.sensor = sensor;
 	}
 }

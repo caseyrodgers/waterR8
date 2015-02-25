@@ -411,9 +411,8 @@ public class CompanyDao {
 	}
 
 	private Sensor getSensorRecord(ResultSet rs) throws Exception {
-		String ssn = rs.getString("sensor");
-		Sensor sensor = new Sensor(rs.getInt("id"), rs.getInt("unit"),
-				rs.getString("role"), ssn);
+		int ssn = rs.getInt("sensor");
+		Sensor sensor = new Sensor(rs.getInt("id"), rs.getInt("unit"),rs.getString("role"), ssn);
 		
 		sensor.setSensorHex(_convertSensorIntSerialSsnToHex(ssn));
 		
@@ -498,7 +497,7 @@ public class CompanyDao {
 			try {
 				String sql = "select * from events where src = cast(? as integer) order by ts desc limit 100";
 				ps = connection.prepareStatement(sql);
-				ps.setString(1, sensor.getSensor());
+				ps.setInt(1, sensor.getSensor());
 				ResultSet rs = ps.executeQuery();
 				while (rs.next()) {
 					events.add(getSensorEventRecord(rs));
@@ -538,8 +537,7 @@ public class CompanyDao {
 	 * @param sensorIdInDecimal
 	 * @return
 	 */
-	private String _convertSensorIntSerialSsnToHex(String ssnInDecAsStr) {
-		int ssnInDec = Integer.parseInt(ssnInDecAsStr);
+	private String _convertSensorIntSerialSsnToHex(int ssnInDec) {
 		String ssnInHex = Integer.toHexString(ssnInDec);
 
 		// make it 8 chars long
@@ -780,7 +778,7 @@ public class CompanyDao {
 
 			ps.setInt(1, sensor.getUnit());
 			ps.setString(2, sensor.getRole());
-			ps.setString(3, sensor.getSensor());
+			ps.setInt(3, sensor.getSensor());
 
 			int cnt = ps.executeUpdate();
 			if (cnt != 1) {
@@ -1201,7 +1199,7 @@ public class CompanyDao {
 			ps = connection.prepareStatement(sql);
 			ps.setInt(1, companyId);
 			ps.setInt(2,  lastBeaconSeq);
-			ps.setString(3, sensorParent.getSensor());
+			ps.setInt(3, sensorParent.getSensor());
 			
 		}
 		finally {
@@ -1229,7 +1227,7 @@ public class CompanyDao {
 			ps.setInt(1,  companyId);
 			ResultSet rs = ps.executeQuery();
 			while(rs.next()) {
-				repeaters.add(new Sensor(rs.getInt("id"), rs.getInt("unit_id"), "Repeater", rs.getString("sensor")));
+				repeaters.add(new Sensor(rs.getInt("id"), rs.getInt("unit_id"), "Repeater", rs.getInt("sensor")));
 			}
 
 		}
@@ -1484,14 +1482,13 @@ public class CompanyDao {
 			psSrc.setTimestamp(1,  new Timestamp(since.getTime()));
 			rs = psSrc.executeQuery();
 			while(rs.next()) {
-				String src = rs.getString("src");
-				int srcInDec = convertSensorHexSerialSsnToInt(src);
+				int srcInDec = rs.getInt("src");
 				int seq = rs.getInt("seq");
 				int hopCnt = rs.getInt("hopcnt");
 				
 				for(SequenceInfo l : li) {
 					if(l.getSeq() == seq) {
-						Sensor s = new Sensor(0, 0, "Repeater","" + srcInDec);
+						Sensor s = new Sensor(0, 0, "Repeater",srcInDec);
 						l.getDevicesThatResponded().add(new SeqHit(s, hopCnt, 0));
 						break;
 					}
@@ -1617,7 +1614,7 @@ public class CompanyDao {
 
 			ps.setInt(1, sensor.getUnit());
 			ps.setString(2, sensor.getRole());
-			ps.setString(3, sensor.getSensor());
+			ps.setInt(3, sensor.getSensor());
 			ps.setInt(4, sensor.getId());
 
 			int cnt = ps.executeUpdate();
