@@ -126,7 +126,7 @@ public class CompanyDao {
 			String sql = " select count(*) as event_count "
 					+ " from events e"
 					+ " where src in ("
-					+ "     select cast(sa.sensor as integer)"
+					+ "     select sa.sensor "
 					+ " 	from   company c"
 					+ " 	   JOIN complex  x on x.company = c.id"
 					+ " 	   JOIN unit u on u.complex = x.id"
@@ -252,7 +252,7 @@ public class CompanyDao {
 					"                         JOIN sensor_assignment sa  " +
 					"                           ON sa.unit = u.id  " +
 					"                         JOIN events e  " +
-					"                           ON e.src = cast(sa.sensor as integer) " +
+					"                           ON e.src = sa.sensor  " +
 					"                  WHERE  u.complex = ?  " +
 					"                         AND e.type = 2  " +
 					"                  GROUP  BY u.id) ec  " +
@@ -262,7 +262,7 @@ public class CompanyDao {
 					"                  FROM   unit u  " +
 					"                         JOIN sensor_assignment sa  " +
 					"                           ON sa.unit = u.id  " +
-					"                         JOIN events e on e.src = cast(sa.sensor as integer)  " +
+					"                         JOIN events e on e.src = sa.sensor   " +
 					"                  WHERE  u.complex = ?  " +
 					"                         AND e.type = 2  " +
 					"                  GROUP  BY u.id) le  " +
@@ -273,13 +273,13 @@ public class CompanyDao {
 					"                         JOIN sensor_assignment sa  " +
 					"                           ON sa.unit = u.id  " +
 					"                         JOIN events e  " +
-					"                           ON e.src = cast(sa.sensor as integer)  " +
+					"                           ON e.src = sa.sensor   " +
 					"                         JOIN (SELECT u.id,  " +
 					"                                      Max(e.id) AS max_id  " +
 					"                               FROM   unit u  " +
 					"                                      JOIN sensor_assignment sa  " +
 					"                                        ON sa.unit = u.id  " +
-					"                                      JOIN events e  on e.src = cast(sa.sensor as integer) " +
+					"                                      JOIN events e  on e.src = sa.sensor  " +
 					"       WHERE  u.complex = ?  " +
 					"       AND e.type = 132  " +
 					"       GROUP  BY u.id) me  " +
@@ -376,7 +376,7 @@ public class CompanyDao {
 							"LEFT JOIN ( " +
 							"       select sa.id, count(*) as event_count " +
 							"         from sensor_assignment sa " +
-							"         join events e on cast(sa.sensor as integer) = e.src " +
+							"         join events e on sa.sensor  = e.src " +
 							"      where sa.unit= ? " +
 							"      group by sa.id " +
 							"  ) ec on ec.id = sa.id " +
@@ -384,7 +384,7 @@ public class CompanyDao {
 							"LEFT JOIN ( " +
 							"       select sa.id, max(ts) as last_sensor_event " +
 							"         from sensor_assignment sa " +
-							"         join events e on cast(sa.sensor as integer) = e.src " +
+							"         join events e on sa.sensor  = e.src " +
 							"      where sa.unit = ? " +
 							"      group by sa.id " +
 							"  ) le on le.id = sa.id " +
@@ -1159,7 +1159,7 @@ public class CompanyDao {
 			String sql = 
 					"select e.* " +
 							"from events e " +
-							"  join sensor_assignment sa on  cast(sa.sensor as integer) = e.src " +
+							"  join sensor_assignment sa on  sa.sensor  = e.src " +
 							"  join unit u on u.id = sa.unit " +
 							"  join complex c on c.id = u.complex " +
 							"where c.company = ? " +
@@ -1190,7 +1190,7 @@ public class CompanyDao {
 			String sql = 
 					"select e.id, e.first " +
 							"from events e " +
-							"  join sensor_assignment sa on  cast(sa.sensor as integer) = e.src " +
+							"  join sensor_assignment sa on  sa.sensor  = e.src " +
 							"  join unit u on u.id = sa.unit " +
 							"  join complex c on c.id = u.complex " +
 							"where c.company = ? " +
@@ -1376,7 +1376,7 @@ public class CompanyDao {
 		try {
 			String sql = "SELECT sa.id as sensor_id, ts, src,hopcnt,bat,rssi,dur,e.seq "
 					+ "from events e  "
-					+ " JOIN sensor_assignment sa on cast(sa.sensor as integer) = e.src "
+					+ " JOIN sensor_assignment sa on sa.sensor  = e.src "
 					+ " where sa.id in "
 					+ inList 
 					+ " order by sa.id, ts desc";
