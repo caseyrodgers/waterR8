@@ -7,24 +7,21 @@ public class NetworkGraphNode  {
 		COMPANY, COMPLEX, ROOT, UNIT, SENSOR, REPEATER};
 	private Type type;
 	private String label;
-	private String src;
+	private int src;
 	private int id;
 	private int key = (++__seq);
 	String subLabel="";
 	
 	public NetworkGraphNode() {}
 	
-	public NetworkGraphNode(Type type, int id, String src, String label) {
+	public NetworkGraphNode(Type type, int id, int src, String label) {
 		this.type = type;
 		this.id = id;
 		this.src = src;
 		this.label = label;
 	}
 
-	public String getSrc() {
-		if(src == null) {
-			return "";
-		}
+	public int getSrc() {
 		return src;
 	}
 

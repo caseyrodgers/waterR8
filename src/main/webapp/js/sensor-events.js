@@ -1,8 +1,12 @@
 $(document).ready(
-		getData()
+		function() {
+			getData();
+			setInterval(getData, 30000);
+		}
 );
 
 function getData() {
+	showNotify("Checking server ...");
 	
 	var id = _urlParams.id;
 	if(!id) {
@@ -12,6 +16,7 @@ function getData() {
 	
 	$.ajax({url: "/api/v1/sensor/" + id, error: _errorHandler})
 	.then(function(data) {
+		data.events = data.events['@items'];
 		loadDataIntoModels(data);
 	});
 }
@@ -22,14 +27,14 @@ var _complexId;
 var _unitId;
 
 function loadDataIntoModels(dataIn) {
+	
 	 function MyViewModel(data) {
-		 
 		 _companyId = data.company.id;
 		 _complexId = data.complex.id;
 		 _unitId = data.unit.id;
 		 
 		 
-		 this.events = ko.observableArray(data.events['@items']);
+		 this.events = ko.observableArray(data.events);
 		 this.sensor = data.sensor;
 		 this.company = data.company;
 		 this.complex = data.complex;
@@ -52,11 +57,18 @@ function loadDataIntoModels(dataIn) {
 				 $('#update-button').attr('disabled',true);
 			 });
 		 }
-		 
 		 this.availableRoles  = ['Sensor', 'Repeater'];
 	 }
-	 _dataModel = new MyViewModel(dataIn);
-	 ko.applyBindings(_dataModel);
+	 if(_dataModel == null) {
+	     _dataModel = new MyViewModel(dataIn);
+	     ko.applyBindings(_dataModel);
+	 }
+	 else {
+		 _dataModel.events.removeAll();
+		 for(var i=0;i<dataIn.events.length;i++) {
+			 _dataModel.events.push(dataIn.events[i]);
+		 }
+	 }
 }
 
 

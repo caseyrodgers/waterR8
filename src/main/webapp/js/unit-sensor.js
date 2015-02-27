@@ -37,7 +37,7 @@ function loadDataIntoModels(dataIn) {
 		 this.networkStatus = data.networkStatus;
 		 this.rowClicked = function(x) {
 			 var r = x.role;
-			 if(r == 'Sensor') {
+			 if(r == 'Flow Timer') {
 				 document.location.href='sensor-events.html?id=' + x.id;
 			 }
 			 else if(r == 'Repeater') {
@@ -62,7 +62,7 @@ function loadDataIntoModels(dataIn) {
 			 });
 		 }
 	 
-		 this.availableRoles  = ['Sensor', 'Repeater'];
+		 this.availableRoles  = ['Flow Timer', 'Repeater'];
 		 
 		 this.showNetworkMap  = function() {
 			 _showNetworkMap('unit', 'Unit ' + _dataModel.unit.unitNumber,  _dataModel.unit.id);

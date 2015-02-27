@@ -4,20 +4,20 @@ public class SensorEvent {
 	
 	private int id;
 	private String json;
-	private String src;
+	private int src;
 	private int seq;
 	private int hopCnt;
-	private String first;
+	private int first;
 	private String type;
 	private int bat;
 	private String timeStamp;
 	private long time;
 	private int dur;
-	private int len;
+	private int rssiRcv;
 
 	public SensorEvent() {}
 	
-	public SensorEvent(int id, String json, String type, String timeStamp, long time, String src, int seq, int hopCnt,String first, int battery, int duration) {
+	public SensorEvent(int id, String json, String type, String timeStamp, long time, int src, int seq, int hopCnt,int first, int battery, int duration, int rssiRcv) {
 		this.id = id;
 		this.json = json;
 		this.type = type;
@@ -29,6 +29,15 @@ public class SensorEvent {
 		this.first = first;
 		this.bat = battery;
 		this.dur = duration;
+		this.rssiRcv = rssiRcv;
+	}
+
+	public int getRssiRcv() {
+		return rssiRcv;
+	}
+
+	public void setRssiRcv(int rssiRcv) {
+		this.rssiRcv = rssiRcv;
 	}
 
 	public int getDur() {
@@ -55,11 +64,11 @@ public class SensorEvent {
 		this.json = json;
 	}
 
-	public String getSrc() {
+	public int getSrc() {
 		return src;
 	}
 
-	public void setSrc(String src) {
+	public void setSrc(int src) {
 		this.src = src;
 	}
 
@@ -79,11 +88,11 @@ public class SensorEvent {
 		this.hopCnt = hopCnt;
 	}
 
-	public String getFirst() {
+	public int getFirst() {
 		return first;
 	}
 
-	public void setFirst(String first) {
+	public void setFirst(int first) {
 		this.first = first;
 	}
 

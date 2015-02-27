@@ -91,7 +91,8 @@ function doUpdateRecord(data, restUrl, callback) {
 
 
 function _errorHandler(xObj, type, e) {
-	bootbox.alert("There was a problem talking with the server.  Your can try again or visit the Help page.");
+	bootbox.alert("There was a problem talking with the server.  Please relogin.");
+	document.location.href='/';
 }
 
 
@@ -101,53 +102,16 @@ function _showNetworkMapForCompany() {
 }
 
 function _showNetworkMap(type, company) {
+	$.ajax({url: 'partials/network_map_list.html', type: "GET",  error: _errorHandler})
+	.then(function(data) {
+		_showNetworkMap_Aux(data, type, company);
+	});
+}
+
+function _showNetworkMap_Aux(dialogHtml, type, company) {
 
 	var title = 'Repeater Network for ' + company.companyName;
-	var message =
-		"<div id='network-graph-wrapper' class='panel panel-info'> " +
-		" <div class='panel-heading'> " +
-		"Sequence Number" +
-		" <select data-bind='options: sequenceNumbers,value: selectedSequence, optionsText: function(x) {return x.seqLabel;}'></select> " +
-		" </div>" +
-		" <div class='panel-body'> " +
-		"<div role='tabpanel'> " +
-		" " +
-		"  <!-- Nav tabs --> " +
-		"  <ul class='nav nav-tabs' role='tablist'> " +
-		"    <li role='presentation' class='active'><a href='#network-graph' aria-controls='home' role='tab' data-toggle='tab'>Graph</a></li> " +
-		"    <li role='presentation' class=''><a href='#repeaters' aria-controls='repeaters' role='tab' data-toggle='tab'>Repeaters</a></li> " +
-		"  </ul> " +
-		" " +
-		"  <!-- Tab panes --> " +
-		"  <div class='tab-content'> " +
-		"    <div role='tabpanel' class='tab-pane' id='repeaters'> " +
-		
-		"<h2>Repeaters Defined in Company</h2>" +
-		"<table class='table table-striped table-hover'> " +
-		"    <thead> " +
-		"        <tr><th>Src</th><th>Hop</th></tr> " +
-		"    </thead> " +
-		"    <tbody data-bind='foreach: allRepeaters'> " +
-		"        <tr> " +
-		"            <td data-bind='text: sensor'></td> " +
-		"            <td data-bind='text: repeaterLabel'></td> " +
-		"        </tr> " +
-		"    </tbody> " +
-		"</table> " +
-		
-		
-		
-		" </div> " +
-		"    <div id='network-graph' role='tabpanel' class='tab-pane active'><h3>Loading Network Graph ...</h3></div> " +
-		"  </div> " +
-		" " +
-		"</div> " +
-		
-		
-		
-		"</div> " +
-		"</div>";		
-	
+	var message = dialogHtml;
 	
 	bootbox.dialog({
         title: title ,
@@ -204,29 +168,52 @@ var _sequenceNumbers;
 var _allRepeaters;
 var _currentSequence;
 
+
+function _lookupRepeaterIdFromSrc(src) {
+	for(var i=0;i<_allRepeaters.length;i++) {
+		var r = _allRepeaters[i];
+		if(r.sensor == src) {
+			return r.id;
+		}
+	}
+	return null;
+}
+
 function loadServerData(data) {
 	
 	resolveRefs(data);
+	
+	data.networkNodes = data.networkNodes['@items'];
 	_sequenceNumbers = data.sequenceNumbers['@items'];
 	_allRepeaters = data.allRepeaters['@items'];
 	_currentSequence = data.currentSequence;
-	for(var x=0;x<_sequenceNumbers.length;x++) {
-	    var sequence = _sequenceNumbers[x];
-		sequence.devicesThatResponded = sequence.devicesThatResponded['@items'];
+	
+	
+	if(_sequenceNumbers) {
+		for(var x=0;x<_sequenceNumbers.length;x++) {
+		    var sequence = _sequenceNumbers[x];
+			sequence.devicesThatResponded = sequence.devicesThatResponded['@items'];
+		}
+		
+		addRepeaterLabelForSequence(_allRepeaters,_sequenceNumbers, _currentSequence );
 	}
-	
-	
+	else {
+		//
+	}
 	
 	if(_netDataModel == null) {
 	    function MyViewModel(data) {
 			 this.sequenceNumbers = ko.observableArray(_sequenceNumbers);
 			 this.currentSequence = ko.observable(data.currentSequence);
-			 this.selectedSequence = _sequenceNumbers[0];
+			 this.selectedSequence = _sequenceNumbers?_sequenceNumbers[0]:null;
 			 
 			 
-		     addRepeaterLabelForSequence(_allRepeaters,_sequenceNumbers, _currentSequence );
-				
 			 this.allRepeaters = ko.observableArray(_allRepeaters);
+			 
+			 
+			 this.rowClicked = function(x) {
+				 alert('row clicked');
+			 }
 		 }
 		 _netDataModel = new MyViewModel(data);
 		 var node = document.getElementById('network-graph-wrapper');
@@ -240,21 +227,26 @@ function loadServerData(data) {
 	else {
 		addRepeaterLabelForSequence(_allRepeaters,_sequenceNumbers, _currentSequence );
 	}
-
 	
 	var graph = new Springy.Graph();
 
-	var nn = data.networkNodes['@items'];
+	var nn = data.networkNodes;
 	
 	buildNetworkGraph(graph, nn);
 	
 	jQuery(function(){
 		   
-		  var networkMapHtml="<canvas id='network-graph-canvas' width='540' height='680' />";
+		  var networkMapHtml="<canvas id='network-graph-canvas' width='540' height='480' />";
 		  $('#network-graph').html(networkMapHtml);
 
 		  $('#network-graph-canvas').on('dblclick', function(){
-			  alert("canvas double click: " + _selectedNode.data.src);
+			  var repeaterId = _lookupRepeaterIdFromSrc(_selectedNode.data.src);
+			  if(repeaterId) {
+			      document.location.href = 'repeater-events.html?id=' + repeaterId;
+			  }
+			  else {
+				  showNotify("Only repeater nodes are clickable");
+			  }
 	      });
 			
 		  var springy = window.springy = jQuery('#network-graph-canvas').springy({
@@ -276,6 +268,10 @@ function loadServerData(data) {
 
 function addRepeaterLabelForSequence(allRepeaters,sequenceNumbers, currentSequence ) {
 	
+	if(!sequenceNumbers) {
+		return;
+	}
+	
 	var sequence = null;
 	for(var x=0;x<sequenceNumbers.length;x++) {
 		if(sequenceNumbers[x].seq == currentSequence) {
@@ -295,7 +291,7 @@ function addRepeaterLabelForSequence(allRepeaters,sequenceNumbers, currentSequen
 		for(var j=0;j<sequence.devicesThatResponded.length;j++) {
 			var s = sequence.devicesThatResponded[j];
 			if(s.sensor.sensor == r.sensor) {
-				r.repeaterLabel ='Responded hop: ' + s.hopCnt;
+				r.repeaterLabel ='Responded: h:' + s.hopCnt + ",r:" + s.rssiRcv + ",%:" + r.respondPercent	;
 				break;
 			}
 		}
@@ -304,6 +300,10 @@ function addRepeaterLabelForSequence(allRepeaters,sequenceNumbers, currentSequen
 }
 
 function buildNetworkGraph(graph, nn) {
+	
+	if(!nn) {
+		return;
+	}
 	
 	var nodes = [];
 	for(var i=0;i<nn.length;i++) {

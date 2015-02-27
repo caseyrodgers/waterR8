@@ -4,7 +4,7 @@ package com.waterR8.model;
 public class NetworkDevice {
 	
 	public static enum Role{
-		SENSOR("Sensor"), REPEATER("Repeater"), COMPANY("Company"), COMPLEX("Complex"), UNIT("Unit");
+		UNKNONW("Unknown"), FLOW_TIMER("Flow Timer"), REPEATER("Repeater"), GATEWAY("Gateway"), COMPANY("Company"), COMPLEX("Complex"), UNIT("Unit");
 	
 		private String label;
 
@@ -21,14 +21,19 @@ public class NetworkDevice {
 		 * @param role
 		 * @return
 		 */
-		public static Role lookup(String role) {
+		public static Role lookup(String roleLabel) {
 			try {
-				return valueOf(role.toUpperCase());
+				for(int i=0;i<values().length;i++) {
+					Role r = values()[i];
+					if(r.getLabel().equals(roleLabel)) {
+						return r;
+					}
+				}
 			}
 			catch(Exception e) {
 				e.printStackTrace();
 			}
-			return Role.SENSOR;
+			return Role.FLOW_TIMER;
 		}
 	}
 	

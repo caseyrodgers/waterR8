@@ -87,7 +87,7 @@ public class CompanyDao_Test extends TestCase {
 		UnitDetails details = CompanyDao.getInstance().getUnitDetails(UNIT);
 		assertNotNull(details);
 		assertNotNull(details.getSensors());
-		assertTrue(details.getSensors().size() > 0);
+		assertTrue(details.getSensors() != null);
 		assertNotNull(details.getUnit().getUnitNumber());
 	}
 	

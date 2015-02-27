@@ -7,23 +7,23 @@ public class CompanyNetworkMap {
 	
 	List<NetworkNode> networkNodes = new ArrayList<NetworkNode>();
 	List<SequenceInfo> sequenceNumbers = new ArrayList<SequenceInfo>();
-	List<Sensor> allRepeaters = new ArrayList<Sensor>();
+	List<RepeaterInfo> allRepeaters = new ArrayList<RepeaterInfo>();
 	int currentSequence;
 	
 	public CompanyNetworkMap() {}
 	
-	public CompanyNetworkMap(List<NetworkNode> networkNodes, List<Sensor> allRepeaters, List<SequenceInfo> sequenceNumbers,int currentSequence) {
+	public CompanyNetworkMap(List<NetworkNode> networkNodes, List<RepeaterInfo> allRepeaters, List<SequenceInfo> sequenceNumbers,int currentSequence) {
 		this.networkNodes = networkNodes;
 		this.allRepeaters = allRepeaters;
 		this.sequenceNumbers = sequenceNumbers;
 		this.currentSequence = currentSequence;
 	}
 
-	public List<Sensor> getAllRepeaters() {
+	public List<RepeaterInfo> getAllRepeaters() {
 		return allRepeaters;
 	}
 
-	public void setAllRepeaters(List<Sensor> allRepeaters) {
+	public void setAllRepeaters(List<RepeaterInfo> allRepeaters) {
 		this.allRepeaters = allRepeaters;
 	}
 
