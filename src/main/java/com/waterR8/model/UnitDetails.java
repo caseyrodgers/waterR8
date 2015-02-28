@@ -11,6 +11,8 @@ public class UnitDetails {
 	List<NetworkDevice> sensors = new ArrayList<NetworkDevice>();
 	SensorNetworkStatus networkStatus;
 	
+	List<AvailableSensor> availableSensors = new ArrayList<AvailableSensor>();
+	
 	public UnitDetails() {}
 	public UnitDetails(Unit unit) {
 		this.unit = unit;
@@ -44,5 +46,11 @@ public class UnitDetails {
 	}
 	public void setNetworkStatus(SensorNetworkStatus networkStatus) {
 		this.networkStatus = networkStatus;
+	}
+	public List<AvailableSensor> getAvailableSensors() {
+		return availableSensors;
+	}
+	public void setAvailableSensors(List<AvailableSensor> availableSensors) {
+		this.availableSensors = availableSensors;
 	}
 }

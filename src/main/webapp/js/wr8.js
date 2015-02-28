@@ -89,10 +89,15 @@ function doUpdateRecord(data, restUrl, callback) {
 }
 
 
-
+var _errorCallback=null;  // override in individual js
 function _errorHandler(xObj, type, e) {
-	bootbox.alert("There was a problem talking with the server.  Please relogin.");
-	document.location.href='/';
+	if(_errorCallback) {
+		_errorCallback(e);
+	}
+	else {
+		// default behaviour
+		bootbox.alert("There was a problem talking with the server.  Please relogin.");
+	}
 }
 
 
@@ -351,6 +356,11 @@ function showNotify(msg) {
 		  }).show();
 }
 
+function showAlert(msg) {
+	 $('.notifications').notify({
+		    message: { text: msg }
+		  }).show();
+}
 
 
 function _gotoApp_Complex() {

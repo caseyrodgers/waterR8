@@ -14,9 +14,21 @@ function getData() {
 	.then(function(data) {
 		loadDataIntoModels(data);
 	});
-	
-	
 }
+
+/** override global error handler aux function
+ *  this will be caused during any server error
+ *  allowing local routines to handle specific msgs.
+ * @param ex
+ */
+_errorCallback = function(ex) {
+    if(ex.toLowerCase().indexOf('duplicate')) {
+    	showNotify('Serial number is already in use.');
+    }
+    else {
+    	showAlert('Could not save sensor.');
+    }
+};
 
 
 // for location services
@@ -29,6 +41,8 @@ function loadDataIntoModels(dataIn) {
 		 
 		 _complexId = data.complex.id;
 		 _companyId = data.company.id;
+		 
+		 this.availableSensors = dataIn.availableSensors['@items']; 
 		 
 		 this.sensors = ko.observableArray(data.sensors['@items']);
 		 this.company = data.company;

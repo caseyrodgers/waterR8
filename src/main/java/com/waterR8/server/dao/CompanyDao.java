@@ -16,7 +16,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.joda.time.DateTime;
+import org.json.JSONObject;
 
+import com.waterR8.model.AvailableSensor;
 import com.waterR8.model.Company;
 import com.waterR8.model.CompanyDetails;
 import com.waterR8.model.CompanyNetworkMap;
@@ -355,12 +357,37 @@ public class CompanyDao {
 			details.setNetworkStatus(getNetworkStatus(connection, details
 					.getCompany().getId(), details.getComplex().getId(),
 					details.getUnit().getId(), 0));
+			details.setAvailableSensors(getAvailableSensors(connection));
 
 			return details;
 		} finally {
 			SqlUtilities.releaseResources(null, null, connection);
 		}
 
+	}
+
+	/** get all manufactored sensors to be used as lookup
+	 * 
+	 * @param conn
+	 * @return
+	 * @throws Exception
+	 */
+	private List<AvailableSensor> getAvailableSensors(Connection conn) throws Exception {
+		
+		List<AvailableSensor> list = new ArrayList<AvailableSensor>();
+		Statement st=null;
+		try {
+		   st = conn.createStatement();
+		   ResultSet rs = st.executeQuery("select * from radio_sn order by sn");
+		   while(rs.next()) {
+		       list.add(new AvailableSensor(rs.getInt("sn"),  rs.getInt("role")));
+		   }
+	   }
+	   finally {
+		   SqlUtilities.releaseResources(null,null, null);
+	   }
+		
+		return list;
 	}
 
 	private Collection<? extends Sensor> getSensors(Connection connection,
@@ -800,11 +827,10 @@ public class CompanyDao {
 			return new RecordOperation(CrudType.CREATE, newId, null);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw e;
 		} finally {
 			SqlUtilities.releaseResources(null, ps, connection);
 		}
-		return null;
 	}
 
 	public RecordOperation deleteSensor(int id) throws Exception {
