@@ -147,8 +147,8 @@
 						</thead>
 						<tbody data-bind="template: {foreach: sensors,  as: 's'}"
 							class="rowlink">
-							<tr data-bind="click: $root.rowClicked">
-                                <td data-bind="text: s.role"></td>
+							<tr data-bind="{click: $root.rowClicked}">
+		                        <td data-bind="text: s.role"></td>
 								<td data-bind="text: s.sensor"></td>
                                 <td data-bind="text: s.eventCount"></td>
 								<td data-bind="text: s.lastEvent"></td>

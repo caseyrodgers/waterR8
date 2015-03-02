@@ -177,8 +177,8 @@ var _currentSequence;
 function _lookupRepeaterIdFromSrc(src) {
 	for(var i=0;i<_allRepeaters.length;i++) {
 		var r = _allRepeaters[i];
-		if(r.sensor == src) {
-			return r.id;
+		if(r.sensor.sensor == src) {
+			return r.sensor.id;
 		}
 	}
 	return null;
@@ -217,7 +217,7 @@ function loadServerData(data) {
 			 
 			 
 			 this.rowClicked = function(x) {
-				 alert('row clicked');
+				 document.location.href = '/repeater-events.html?id=' + x.sensor.id;
 			 }
 		 }
 		 _netDataModel = new MyViewModel(data);

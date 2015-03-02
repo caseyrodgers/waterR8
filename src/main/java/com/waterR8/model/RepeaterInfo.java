@@ -3,21 +3,20 @@ package com.waterR8.model;
 public class RepeaterInfo {
 
 	private Sensor sensor;
-	private int seq;
-	private int first;
-	private int hopCnt;
-	private int rssiRcv;
+
+	
+	private int avgHopCnt;
+	private int avgRssiRcv;
 	int respondPercent;
 
 	public RepeaterInfo() {
 	}
 
-	public RepeaterInfo(Sensor sensor, int seq, int hopCnt, int first, int rssiRcv, int respondPercent) {
+	public RepeaterInfo(Sensor sensor, int avgHopCnt, int avgRssiRcv, int respondPercent) {
 		this.sensor = sensor;
-		this.seq = seq;
-		this.hopCnt = hopCnt;
-		this.first = first;
-		this.rssiRcv = rssiRcv;
+		this.avgHopCnt = avgHopCnt;
+		
+		this.avgRssiRcv = avgRssiRcv;
 		this.respondPercent = respondPercent;
 	}
 
@@ -29,36 +28,20 @@ public class RepeaterInfo {
 		this.respondPercent = respondPercent;
 	}
 
-	public int getSeq() {
-		return seq;
+	public int getAvgHopCnt() {
+		return avgHopCnt;
 	}
 
-	public void setSeq(int seq) {
-		this.seq = seq;
+	public void setAvgHopCnt(int avgHopCnt) {
+		this.avgHopCnt = avgHopCnt;
 	}
 
-	public int getFirst() {
-		return first;
+	public int getAvgRssiRcv() {
+		return avgRssiRcv;
 	}
 
-	public void setFirst(int first) {
-		this.first = first;
-	}
-
-	public int getHopCnt() {
-		return hopCnt;
-	}
-
-	public void setHopCnt(int hopCnt) {
-		this.hopCnt = hopCnt;
-	}
-
-	public int getRssiRcv() {
-		return rssiRcv;
-	}
-
-	public void setRssiRcv(int rssRcv) {
-		this.rssiRcv = rssRcv;
+	public void setAvgRssiRcv(int avgRssiRcv) {
+		this.avgRssiRcv = avgRssiRcv;
 	}
 
 	public Sensor getSensor() {

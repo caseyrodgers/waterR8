@@ -21,16 +21,16 @@
 							<thead>
 								<tr>
 									<th>Src</th>
-									<th>Hop</th>
-									<th>RSSI Rsv</th>
+									<th>Avg Hop</th>
+									<th>Avg RSSI Rsv</th>
 									<th>% Responded</th>
 								</tr>
 							</thead>
-							<tbody data-bind="foreach: allRepeaters">
-								<tr>
+							<tbody data-bind="{foreach: allRepeaters, as: 's'}" class="rowlink">
+								<tr data-bind="event: {dblclick: $root.rowClicked}">
 									<td data-bind="text: sensor.sensor"></td>
-									<td data-bind="text: hopCnt"></td>
-									<td data-bind="text: rssiRcv"></td>
+									<td data-bind="text: avgHopCnt"></td>
+									<td data-bind="text: avgRssiRcv"></td>
 									<td data-bind="text: respondPercent"></td>
 								</tr>
 							</tbody>

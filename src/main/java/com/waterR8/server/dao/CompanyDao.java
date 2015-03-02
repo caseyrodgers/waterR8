@@ -1086,19 +1086,31 @@ public class CompanyDao {
 		int total = seqNumbers.size();
 		for(Sensor repeater: repeatersInCompany) {
 			int countResponses=0;
+			int avgHopCnt=0;
+			int avgRssiRcv=0;
 			// how many responses
 			for(SequenceInfo seq: seqNumbers) {
 				
 				for(SeqHit d: seq.getDevicesThatResponded()) {
 					if(d.getSensor().getSensor() == repeater.getSensor()) {
 						countResponses++;
+						
+						
+						avgRssiRcv += d.getRssiRcv();
+						avgHopCnt += d.getHopCnt();
 					}
 				}
+				
+				
 			}
 			
 			int percent = countResponses > 0?(int)((total * 100.0f) / countResponses):0;
 			
-			RepeaterInfo repInfo = new RepeaterInfo(repeater, 0, -1, -1, -1, percent);
+			
+			avgRssiRcv = countResponses > 0?avgRssiRcv / countResponses:0;
+			avgHopCnt = countResponses > 0?avgHopCnt / countResponses:0;
+			
+			RepeaterInfo repInfo = new RepeaterInfo(repeater, avgHopCnt, avgRssiRcv, percent);
 			repInfo.setRespondPercent(percent);
 			
 			repInfoList.add(repInfo);
@@ -1443,11 +1455,12 @@ public class CompanyDao {
 			}
 			else {
 				sql = 
-						"select distinct seq, e.src, e.hopcnt " +
+						"select seq, e.src, avg(e.hopcnt) as avg_hop, avg(e.rssi_rcv) as avg_rssi " +
 				        " from events e " +
 						" where seq in (" + inList + ")" +
 				        " and type = 132 " +
-				        " and ts > ? " ;
+				        " and ts > ? " +
+				        " group by seq, e.src";
 				
 				psSrc = conn.prepareStatement(sql);
 				psSrc.setTimestamp(1,  new Timestamp(since.getTime()));
@@ -1455,12 +1468,13 @@ public class CompanyDao {
 				while(rs.next()) {
 					int srcInDec = rs.getInt("src");
 					int seq = rs.getInt("seq");
-					int hopCnt = rs.getInt("hopcnt");
+					int hopCnt = rs.getInt("avg_hop");
+					int rcciRcv = rs.getInt("avg_rssi");
 					
 					for(SequenceInfo l : li) {
 						if(l.getSeq() == seq) {
 							Sensor s = new Sensor(0, 0, "Repeater",srcInDec);
-							l.getDevicesThatResponded().add(new SeqHit(s, hopCnt, 0));
+							l.getDevicesThatResponded().add(new SeqHit(s, hopCnt, rcciRcv));
 							break;
 						}
 					}
