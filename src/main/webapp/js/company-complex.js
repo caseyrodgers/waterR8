@@ -33,7 +33,7 @@ function loadDataIntoModels(data) {
 		 this.deleteRecord = function(rec2Del) {
 			 verifyDelete('Company', function() {
 				 doDeleteRecord(rec2Del, "/api/v1/company/delete/" + data.company.id, function() {
-					 history.go(-1);
+					 _gotoApp_Companies();
 				 });
 			 })
 		 };

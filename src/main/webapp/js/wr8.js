@@ -270,6 +270,23 @@ function loadServerData(data) {
 }
 
 
+function _getRoleName(roleId) {
+	if(roleId == 1) {
+		return 'Flow Timer';
+	}
+	else if(roleId == 2) {
+		return 'Repeater';
+	}
+	else if(roleId == 3) {
+		return 'Gateway';
+	}
+	else {
+		return 'Unknown Role';
+	}
+}
+
+
+
 
 function addRepeaterLabelForSequence(allRepeaters,sequenceNumbers, currentSequence ) {
 	
@@ -378,6 +395,12 @@ function _gotoApp_Unit() {
 function _gotoApp_Company() {
 	var loc = "&rand=" + new Date().getTime();
 	var url = '/company-complex.html?id=' + _companyId + loc;
+	document.location.href = url;
+}
+
+function _gotoApp_Companies() {
+	var loc = "rand=" + new Date().getTime();
+	var url = '/companies.html?' + loc;
 	document.location.href = url;
 }
 

@@ -45,8 +45,9 @@ function loadDataIntoModels(dataIn) {
 		 }
 		 this.deleteRecord = function() {
 			 verifyDelete('Sensor', function() {
-				 doDeleteRecord(_dataModel.sensor.id, "/api/v1/sensor/delete/" + _dataModel.sensor.id, function() {
-					 history.go(-1);	
+				 doDeleteRecord(_dataModel.sensor.id, "/api/v1/sensor/delete/" + _dataModel.sensor.id, 
+					function() {
+					 _gotoApp_Unit();	
 				 	});
 			 });
 		 }

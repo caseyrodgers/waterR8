@@ -5,7 +5,7 @@ public class DeviceNode extends NetworkDevice {
 	public DeviceNode() {}
 	
 	public DeviceNode(NetworkDevice parent, Unit unit) {
-		super(Role.UNIT.name(), unit.getId(),0,0); 
+		super(Role.UNIT.ordinal(), unit.getId(),0,0); 
 	}
 
 }

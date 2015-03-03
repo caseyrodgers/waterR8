@@ -32,7 +32,7 @@ public class CompanyDao_Test extends TestCase {
 		assertTrue(networkMap.getNetworkNodes() != null);
 	}
 	
-	int COMPLEX=5;
+	int COMPLEX=2;
 	public void testGetCompanyMapForComplex() throws Exception {
 		CompanyNetworkMap networkMap = CompanyDao.getInstance().getCompanyMapForComplex(COMPLEX);
 		assertNotNull(networkMap);
@@ -91,11 +91,12 @@ public class CompanyDao_Test extends TestCase {
 		assertNotNull(details.getUnit().getUnitNumber());
 	}
 	
+	int SENSOR=118;
 	public void testGetSensorDetails() throws Exception {
-		SensorDetails details = CompanyDao.getInstance().getSensorDetail(2);
+		SensorDetails details = CompanyDao.getInstance().getSensorDetail(SENSOR);
 		assertNotNull(details);
 		assertTrue(details.getCompany().getId() > 0);
 		assertTrue(details.getSensor().getId() > 0);
-		assertTrue(details.getSensor().getRole() != null);
+		assertTrue(details.getSensor().getRole() != 0);
 	}
 }

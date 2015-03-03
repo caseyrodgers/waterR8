@@ -16,7 +16,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.joda.time.DateTime;
-import org.json.JSONObject;
 
 import com.waterR8.model.AvailableSensor;
 import com.waterR8.model.Company;
@@ -357,7 +356,7 @@ public class CompanyDao {
 			details.setNetworkStatus(getNetworkStatus(connection, details
 					.getCompany().getId(), details.getComplex().getId(),
 					details.getUnit().getId(), 0));
-			details.setAvailableSensors(getAvailableSensors(connection));
+			details.setAvailableSensors(getAvailableSensors(connection, details.getComplex().getId()));
 
 			return details;
 		} finally {
@@ -372,13 +371,23 @@ public class CompanyDao {
 	 * @return
 	 * @throws Exception
 	 */
-	private List<AvailableSensor> getAvailableSensors(Connection conn) throws Exception {
+	private List<AvailableSensor> getAvailableSensors(Connection conn, int complexId) throws Exception {
 		
 		List<AvailableSensor> list = new ArrayList<AvailableSensor>();
-		Statement st=null;
+		PreparedStatement st=null;
 		try {
-		   st = conn.createStatement();
-		   ResultSet rs = st.executeQuery("select * from radio_sn order by sn");
+			   String sql = 
+					   "select * " + 
+	                   " from radio_sn  " +
+	                   " where sn not in ( " +
+	                   "     select sn from sensor_assignment " +
+	                   " ) and role in (1,2) " +
+	                   " and sn in (select sn from sn_complex where complex = ?) " +
+	                   " order by sn ";
+		   st = conn.prepareStatement(sql);
+		   st.setInt(1,  complexId);
+		   ResultSet rs = st.executeQuery();
+		   
 		   while(rs.next()) {
 		       list.add(new AvailableSensor(rs.getInt("sn"),  rs.getInt("role")));
 		   }
@@ -440,7 +449,7 @@ public class CompanyDao {
 		int ssn = rs.getInt("sn");
 		Role role = NetworkDevice.Role.values()[rs.getInt("role")];
 		
-		Sensor sensor = new Sensor(rs.getInt("id"), rs.getInt("unit"),role.getLabel(), ssn);
+		Sensor sensor = new Sensor(rs.getInt("id"), rs.getInt("unit"),role.ordinal(), ssn);
 		
 		sensor.setSensorHex(_convertSensorIntSerialSsnToHex(ssn));
 		
@@ -806,7 +815,7 @@ public class CompanyDao {
 					Statement.RETURN_GENERATED_KEYS);
 
 			ps.setInt(1, sensor.getUnit());
-			ps.setInt(2, Role.lookup(sensor.getRole()).ordinal());
+			ps.setInt(2, sensor.getRole());
 			ps.setInt(3, sensor.getSensor());
 
 			int cnt = ps.executeUpdate();
@@ -1299,7 +1308,7 @@ public class CompanyDao {
 			ps.setInt(2, NetworkDevice.Role.REPEATER.ordinal());
 			ResultSet rs = ps.executeQuery();
 			while(rs.next()) {
-				Sensor s = new Sensor(rs.getInt("id"), rs.getInt("unit_id"), NetworkDevice.Role.REPEATER.getLabel(), rs.getInt("sn"));
+				Sensor s = new Sensor(rs.getInt("id"), rs.getInt("unit_id"), NetworkDevice.Role.REPEATER.ordinal(), rs.getInt("sn"));
 				repeaters.add(s);
 			}
 		}
@@ -1473,7 +1482,7 @@ public class CompanyDao {
 					
 					for(SequenceInfo l : li) {
 						if(l.getSeq() == seq) {
-							Sensor s = new Sensor(0, 0, "Repeater",srcInDec);
+							Sensor s = new Sensor(0, 0, Role.REPEATER.ordinal(),srcInDec);
 							l.getDevicesThatResponded().add(new SeqHit(s, hopCnt, rcciRcv));
 							break;
 						}
@@ -1599,7 +1608,7 @@ public class CompanyDao {
 			ps = connection.prepareStatement(sql);
 
 			ps.setInt(1, sensor.getUnit());
-			ps.setString(2, sensor.getRole());
+			ps.setInt(2, sensor.getRole());
 			ps.setInt(3, sensor.getSensor());
 			ps.setInt(4, sensor.getId());
 

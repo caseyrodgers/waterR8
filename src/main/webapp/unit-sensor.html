@@ -148,7 +148,7 @@
 						<tbody data-bind="template: {foreach: sensors,  as: 's'}"
 							class="rowlink">
 							<tr data-bind="{click: $root.rowClicked}">
-		                        <td data-bind="text: s.role"></td>
+		                        <td data-bind="text: s.roleLabel"></td>
 								<td data-bind="text: s.sensor"></td>
                                 <td data-bind="text: s.eventCount"></td>
 								<td data-bind="text: s.lastEvent"></td>
@@ -171,33 +171,21 @@
 					<form id='add-form' class="form-horizontal" action='#'
 						method='POST'>
 						
-						<div class="form-group">
-						    <div class='col-xs-2'>&nbsp;</div>
-						    <div class="col-xs-10">
-                                <button type='button' class='btn btn-default'>Select Available Sensor</button>						
+						<div class="form-group" data-bind="visible: availableSensors().length > 0">
+							<label for="Sensor" class="control-label col-xs-4">Device Serial Number</label>
+							<div class="col-xs-5">
+							    <select data-bind='{options: availableSensors, optionsText: availableSensorsText, value: selectedSensor}' class="form-control" name="sn"></select>
 							</div>
 						</div>
-						<div class="form-group">
-						    <div class='col-xs-2'>&nbsp;</div>
-						    <div class="col-xs-10">
-                                <div class="form-conl col-xs-10">Or</div>						
-							</div>
-						</div>
-
-						<div class="form-group">
-							<label for="role" class="control-label col-xs-2">Role</label>
-							<div class="col-xs-10">
-							    <select data-bind="options: availableRoles" size="1" name="role" class="form-control" name="role"></select>
-							</div>
-						</div>			
 						
-						<div class="form-group">
-							<label for="Sensor" class="control-label col-xs-2">Serial Number</label>
-							<div class="col-xs-10">
-								<input type="text" class="form-control" name="sensor"
-									placeholder="Sensor Serial Number">
+						<div class="form-group" data-bind="visible: availableSensors().length == 0">
+						   	<label for="Sensor" class="control-label col-xs-4">No available sensors</label>
+							<div class="col-xs-5">
+							    
 							</div>
+						   
 						</div>
+						
 					</form>
 
 

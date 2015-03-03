@@ -39,17 +39,18 @@ public class NetworkDevice {
 	
 	int id;
 	int unit;
-	String role;
+	int role;
+	String roleLabel;
 	int sensor;
 	String sensorHex;
-	private Object roleLabel;
 	int eventCount;
 	String lastEvent;
 	
 	public NetworkDevice() {}
 		
-	protected NetworkDevice(String role, int id,int unit, int sensor) {
+	protected NetworkDevice(int role, int id,int unit, int sensor) {
 		this.role = role;
+		this.roleLabel = Role.values()[role].getLabel();
 		this.id = id;
 		this.unit = unit;
 		this.sensor = sensor;
@@ -71,11 +72,11 @@ public class NetworkDevice {
 		this.lastEvent = lastEvent;
 	}
 
-	public Object getRoleLabel() {
-		return roleLabel;
+	public String getRoleLabel() {
+		return this.roleLabel;
 	}
-
-	public void setRoleLabel(Object roleLabel) {
+	
+	public void setRoleLabel(String roleLabel) {
 		this.roleLabel = roleLabel;
 	}
 
@@ -103,12 +104,13 @@ public class NetworkDevice {
 		this.unit = unit;
 	}
 
-	public String getRole() {
+	public int getRole() {
 		return role;
 	}
 
-	public void setRole(String role) {
+	public void setRole(int role) {
 		this.role = role;
+		this.roleLabel = Role.values()[role].getLabel();
 	}
 
 	public int getSensor() {

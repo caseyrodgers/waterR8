@@ -42,7 +42,11 @@ function loadDataIntoModels(dataIn) {
 		 _complexId = data.complex.id;
 		 _companyId = data.company.id;
 		 
-		 this.availableSensors = dataIn.availableSensors['@items']; 
+		 this.availableSensors = ko.observableArray(dataIn.availableSensors['@items']); 
+		 this.availableSensorsText = function(x) {
+			 return x.sn + ' (' + _getRoleName(x.role) + ')';
+		 } 
+		 this.selectedSensor = ko.observable();
 		 
 		 this.sensors = ko.observableArray(data.sensors['@items']);
 		 this.company = data.company;
@@ -51,10 +55,10 @@ function loadDataIntoModels(dataIn) {
 		 this.networkStatus = data.networkStatus;
 		 this.rowClicked = function(x) {
 			 var r = x.role;
-			 if(r == 'Flow Timer') {
+			 if(_getRoleName(r) == 'Flow Timer') {
 				 document.location.href='sensor-events.html?id=' + x.id;
 			 }
-			 else if(r == 'Repeater') {
+			 else if(_getRoleName(r) == 'Repeater') {
 				 document.location.href='repeater-events.html?id=' + x.id;
 			 }
 			 else {
@@ -65,7 +69,7 @@ function loadDataIntoModels(dataIn) {
 		 this.deleteRecord = function(x) {
 			 verifyDelete('Unit', function() {
 				 doDeleteRecord(x, "/api/v1/unit/delete/" + _dataModel.unit.id, 
-						 function() { history.go(-1);});
+						 function() { _gotoApp_Complex() });
 			 });
 		 }
 		 
@@ -76,8 +80,6 @@ function loadDataIntoModels(dataIn) {
 			 });
 		 }
 	 
-		 this.availableRoles  = ['Flow Timer', 'Repeater'];
-		 
 		 this.showNetworkMap  = function() {
 			 _showNetworkMap('unit', 'Unit ' + _dataModel.unit.unitNumber,  _dataModel.unit.id);
 		 }
@@ -85,7 +87,6 @@ function loadDataIntoModels(dataIn) {
 	 _dataModel = new MyViewModel(dataIn);
 	 ko.applyBindings(_dataModel);
 }
-
 
 var _addFormHtml = null;
 function createComplex() {
@@ -111,8 +112,9 @@ function createComplex() {
             		if($('#add-form').valid()) {
                     	var sensorData = {
                     			unit: _dataModel.unit.id,
-                    			role:$('[name=role]', e).val(),
-                    			sensor:$('[name=sensor]', e).val()
+                    			role: _dataModel.selectedSensor().role,
+                    			roleLabel: _getRoleName(_dataModel.selectedSensor().role),
+                    			sensor:_dataModel.selectedSensor().sn
                     	};
                     	var serverUrl = "/api/v1/sensor/add";
                     	saveDataToServer(sensorData, serverUrl, function(pk) {
@@ -127,6 +129,8 @@ function createComplex() {
             }
         }
     });
+	
+	ko.applyBindings(_dataModel, document.getElementById('add-form'));
 	
     $('#add-form').validate(
        {
