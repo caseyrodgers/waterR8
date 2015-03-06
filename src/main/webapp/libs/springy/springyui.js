@@ -334,7 +334,7 @@ jQuery.fn.springy = function(params) {
 				
 				if(subLabel) {
 					ctx.font="italic normal 12px arial";
-					ctx.fillText(subLabel, s.x - contentWidth/2, s.y - contentHeight+40);
+					ctx.fillText(subLabel, s.x - contentWidth/2, s.y - contentHeight+20);
 					
 					// border
 					//ctx.stokeWidth='1px';

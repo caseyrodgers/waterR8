@@ -22,7 +22,7 @@ function getData() {
  * @param ex
  */
 _errorCallback = function(ex) {
-    if(ex.toLowerCase().indexOf('duplicate')) {
+    if(ex.toLowerCase().indexOf('duplicate') > -1) {
     	showNotify('Serial number is already in use.');
     }
     else {

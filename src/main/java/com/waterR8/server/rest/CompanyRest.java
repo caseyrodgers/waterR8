@@ -17,10 +17,12 @@ import com.cedarsoftware.util.io.JsonReader;
 import com.cedarsoftware.util.io.JsonWriter;
 import com.waterR8.model.Company;
 import com.waterR8.model.Complex;
+import com.waterR8.model.Gateway;
 import com.waterR8.model.Sensor;
 import com.waterR8.model.SequenceInfo;
 import com.waterR8.model.Unit;
 import com.waterR8.server.dao.CompanyDao;
+import com.waterR8.server.dao.GatewayDao;
 
 @Produces(MediaType.APPLICATION_JSON)
 @Path("/")
@@ -65,9 +67,6 @@ public class CompanyRest implements Serializable {
     public String getCompayDetails(@PathParam("companyId") int id) throws Exception  {
     	return JsonWriter.objectToJson(CompanyDao.getInstance().getCompanyDetails(id));
 	}
-    
-    
-    
     
     
     @GET
@@ -129,6 +128,22 @@ public class CompanyRest implements Serializable {
     	return JsonWriter.objectToJson(CompanyDao.getInstance().updateComplex(complex));
     }
 
+    @POST
+    @Path("complex/gateway/update")
+    public String processComplexGatewayUpdate(String data) throws Exception  {
+    	return processComplexGatewayUpdateAux(data);
+    }
+    
+     
+
+	private String processComplexGatewayUpdateAux(String data) throws Exception {
+    	JSONObject jo = new JSONObject(data);
+    	int complex = jo.getInt("complex");
+    	JSONObject jo2 = jo.getJSONObject("gateway");
+    	jo2.put("@type", "com.waterR8.model.Gateway");
+    	Gateway gateway = (Gateway)JsonReader.jsonToJava(jo2.toString());
+    	return JsonWriter.objectToJson(GatewayDao.getInstance().updateComplexGateway(complex, gateway));		
+	}
 
 	private String processComplexAddAux(String data) throws Exception  {
 		// convert back into a Company object
@@ -226,8 +241,29 @@ public class CompanyRest implements Serializable {
     	return JsonWriter.objectToJson(CompanyDao.getInstance().getCompanyMapForUnit(id));
 	}
     
-    
 
+    
+    @POST
+    @Path("gateway/command") 
+    public String doGatewayCommand(String jsonData) throws Exception {
+    	return doGatewayCommand_Aux(jsonData);
+    }
+
+	private String doGatewayCommand_Aux(String jsonData) throws Exception {
+    	JSONObject jo = new JSONObject(jsonData);
+    	int commandId = jo.getInt("command");
+    	int complexId = jo.getInt("complex");
+    	
+        return JsonWriter.objectToJson(GatewayDao.getInstance().makeCommandRequest(complexId, commandId));    	
+	}
+
+
+    
+    @GET
+    @Path("gateway/available/{complexId}") 
+    public String doGetAvailableGateways(@PathParam("complexId") int complexId) throws Exception {
+    	return JsonWriter.objectToJson(GatewayDao.getInstance().getAvailableGateways(complexId));
+    }
 
 }
 

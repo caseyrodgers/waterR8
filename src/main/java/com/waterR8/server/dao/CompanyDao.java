@@ -23,6 +23,7 @@ import com.waterR8.model.CompanyDetails;
 import com.waterR8.model.CompanyNetworkMap;
 import com.waterR8.model.Complex;
 import com.waterR8.model.ComplexDetails;
+import com.waterR8.model.Gateway;
 import com.waterR8.model.NetworkDevice;
 import com.waterR8.model.NetworkDevice.Role;
 import com.waterR8.model.NetworkGraphNode;
@@ -197,7 +198,13 @@ public class CompanyDao {
 		List<Complex> complexes = new ArrayList<Complex>();
 		PreparedStatement ps = null;
 		try {
-			String sql = "select * from complex where company = ? order by complex_name";
+			String sql = 
+					" select c.*, g.mac_addr as gateway_mac_addr, g.ip as gateway_ip" +
+					" from complex  c " +
+					"  LEFT JOIN gateway g on g.sn = c.gateway_sn " +
+					" where c.company = ? order by c.complex_name";
+			
+			
 			ps = connection.prepareStatement(sql);
 			ps.setInt(1, id);
 			ResultSet rs = ps.executeQuery();
@@ -211,14 +218,24 @@ public class CompanyDao {
 	}
 
 	private Complex getComplexRecord(ResultSet rs) throws Exception {
+		
+		
+		int gatewaySn = rs.getInt("gateway_sn");
+		String gatewayMac = rs.getString("gateway_mac_addr");
+		String gatewayIp = rs.getString("gateway_ip");
+		
+		Gateway gateway = new Gateway(gatewaySn, gatewayMac, gatewayIp);
+		
 		return new Complex(rs.getInt("id"), rs.getInt("company"),
-				rs.getString("complex_name"), rs.getString("address"),
+				rs.getString("complex_name"), 
+				rs.getString("address"),
 				rs.getString("city"), rs.getString("state"),
 				rs.getString("zip"), rs.getString("phone"),
 				rs.getString("email"), rs.getInt("building_count"),
 				rs.getString("construction_type"), rs.getString("floor_type"),
 				rs.getInt("lot_size"), rs.getInt("floors"),
-				rs.getString("notes"));
+				rs.getString("notes"),
+				gateway);
 	}
 
 	public ComplexDetails getComplexDetails(int id) throws Exception {
@@ -230,12 +247,12 @@ public class CompanyDao {
 			details.setCompany(getCompany(details.getComplex().getCompany()));
 			details.setNetworkStatus(getNetworkStatus(connection, details
 					.getCompany().getId(), details.getComplex().getId(), 0, 0));
+			
 			return details;
 		} finally {
 			SqlUtilities.releaseResources(null, null, connection);
 		}
 	}
-
 	private List<Unit> getUnits(Connection connection, int complexId)
 			throws Exception {
 		List<Unit> units = new ArrayList<Unit>();
@@ -326,10 +343,15 @@ public class CompanyDao {
 		return lastTs;
 	}
 
-	private Complex getComplex(Connection connection, int id) throws Exception {
+	public Complex getComplex(Connection connection, int id) throws Exception {
 		PreparedStatement ps = null;
 		try {
-			String sql = "select * from complex where id = ?";
+			String sql = 
+					" select c.*, g.mac_addr as gateway_mac_addr, g.ip as gateway_ip" +
+					" from complex  c " +
+					"  LEFT JOIN gateway g on g.sn = c.gateway_sn " +
+					" where c.id = ? order by c.complex_name";
+
 			ps = connection.prepareStatement(sql);
 			ps.setInt(1, id);
 			ResultSet rs = ps.executeQuery();
@@ -337,9 +359,12 @@ public class CompanyDao {
 				throw new Exception("Could not load complex '" + id + "'");
 			}
 			return getComplexRecord(rs);
-		} finally {
+		} catch(Exception e) {
+			e.printStackTrace();
+		}finally {
 			SqlUtilities.releaseResources(null, ps, null);
 		}
+		return null;
 
 	}
 
@@ -372,7 +397,7 @@ public class CompanyDao {
 	 * @throws Exception
 	 */
 	private List<AvailableSensor> getAvailableSensors(Connection conn, int complexId) throws Exception {
-		
+	
 		List<AvailableSensor> list = new ArrayList<AvailableSensor>();
 		PreparedStatement st=null;
 		try {
@@ -676,7 +701,7 @@ public class CompanyDao {
 			connection = ConnectionPool.getConnection();
 			String sql = "insert into complex(company, complex_name, address, city, state, zip "
 					+ ", phone, email, building_count, construction_type, floor_type, lot_size "
-					+ " , floors, notes) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+					+ " , floors, notes) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			ps = connection.prepareStatement(sql,
 					Statement.RETURN_GENERATED_KEYS);
 
@@ -1107,13 +1132,14 @@ public class CompanyDao {
 						
 						avgRssiRcv += d.getRssiRcv();
 						avgHopCnt += d.getHopCnt();
+						break;
 					}
 				}
 				
 				
 			}
 			
-			int percent = countResponses > 0?(int)((total * 100.0f) / countResponses):0;
+			int percent = countResponses > 0?(int)((countResponses * 100.0f) /total ):0;
 			
 			
 			avgRssiRcv = countResponses > 0?avgRssiRcv / countResponses:0;
@@ -1204,12 +1230,14 @@ public class CompanyDao {
 					
 					if(!alreadyInList(e, network)) {
 						
+						String timeLastEvent=getTimeLastEvent(events,e.getSrc());
 						//System.out.println("Adding: hop: " + e.getHopCnt() + ", parent: " + parentSrc + ",  first: " +  e.getFirst() + ", src: " + e.getSrc());
-						String label =  e.getSrc() + ",h:" + e.getHopCnt() + ",r:" + e.getRssiRcv() + ",t:" + DateUtils.getTimeSinceLabel(new Date(e.getTime()));
+						String label =  e.getSrc() + ",h:" + e.getHopCnt() + ",r:" + e.getRssiRcv();
 						
 						// System.out.println("Adding: " + label);
 						
 						NetworkGraphNode child = new NetworkGraphNode(Type.REPEATER, e.getId(), e.getSrc(), label);
+						child.setSubLabel(timeLastEvent);
 						network.add(new NetworkNode(parent, child));
 						
 						// get all children of this child
@@ -1218,6 +1246,20 @@ public class CompanyDao {
 				}
 			}
 		}
+	}
+
+	private String getTimeLastEvent(List<SensorEvent> events,int src) {
+		long newestTs=0;
+		for(SensorEvent e: events) {
+			if(e.getSrc() == src) {
+				long ts = e.getTime();
+				if(ts > newestTs) {
+					newestTs = ts;
+				}
+			}
+		}
+
+		return newestTs>0?DateUtils.getTimeSinceLabel(new Date(newestTs)):"No Events";
 	}
 
 	private boolean alreadyInList(SensorEvent e, List<NetworkNode> network) {
@@ -1477,13 +1519,13 @@ public class CompanyDao {
 				while(rs.next()) {
 					int srcInDec = rs.getInt("src");
 					int seq = rs.getInt("seq");
-					int hopCnt = rs.getInt("avg_hop");
-					int rcciRcv = rs.getInt("avg_rssi");
+					int avgHopCnt = rs.getInt("avg_hop");
+					int avgRcciRcv = rs.getInt("avg_rssi");
 					
 					for(SequenceInfo l : li) {
 						if(l.getSeq() == seq) {
-							Sensor s = new Sensor(0, 0, Role.REPEATER.ordinal(),srcInDec);
-							l.getDevicesThatResponded().add(new SeqHit(s, hopCnt, rcciRcv));
+							Sensor repeater = new Sensor(0, 0, Role.REPEATER.ordinal(),srcInDec);
+							l.getDevicesThatResponded().add(new SeqHit(seq, repeater, avgHopCnt, avgRcciRcv));
 							break;
 						}
 					}
@@ -1535,7 +1577,7 @@ public class CompanyDao {
 			connection = ConnectionPool.getConnection();
 
 			String sql = "update complex " + "set company=?,"
-					+ "complex_name=?," + "address=?," + "city=?," + "state=?,"
+					+ "complex_name=?,address=?," + "city=?," + "state=?,"
 					+ "zip=?," + "phone=?," + "email=?," + "building_count=?,"
 					+ "construction_type=?," + "floor_type=?," + "floors=?,"
 					+ "lot_size=?," + "notes=?" + " where id = ?";

@@ -193,7 +193,6 @@ function loadServerData(data) {
 	_allRepeaters = data.allRepeaters['@items'];
 	_currentSequence = data.currentSequence;
 	
-	
 	if(_sequenceNumbers) {
 		for(var x=0;x<_sequenceNumbers.length;x++) {
 		    var sequence = _sequenceNumbers[x];
@@ -212,12 +211,14 @@ function loadServerData(data) {
 			 this.currentSequence = ko.observable(data.currentSequence);
 			 this.selectedSequence = _sequenceNumbers?_sequenceNumbers[0]:null;
 			 
-			 
 			 this.allRepeaters = ko.observableArray(_allRepeaters);
-			 
 			 
 			 this.rowClicked = function(x) {
 				 document.location.href = '/repeater-events.html?id=' + x.sensor.id;
+			 }
+			 
+			 this.requestNetworkMap = function(x) {
+				 _requestNetworkMap();
 			 }
 		 }
 		 _netDataModel = new MyViewModel(data);
@@ -419,4 +420,18 @@ function _gotoPreviousPage() {
 
 function ___showNetworkMap() {
 	document.location.href='network_map.html?id=' + _companyId;
+}
+
+function simpleErrHandler(x) {
+	console.log("there was a problem making the server request.  Please try again.");
+}
+
+function _requestNetworkMap() {
+	showNotify('Requesting a network map ...');
+	
+	var dataJson = "{command: 1, complex: " + _complexId + "}";
+	$.ajax({url: "/api/v1/gateway/command", type: "POST", data: dataJson, error: simpleErrHandler})
+	.then(function(data) {
+		showNotify("Request was made: " + data);
+	});	
 }

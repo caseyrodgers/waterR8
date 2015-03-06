@@ -9,6 +9,7 @@ public class ComplexDetails {
 	Complex complex;
 	List<Unit> units = new ArrayList<Unit>();
 	SensorNetworkStatus networkStatus;
+	List<Gateway> availableGateways = new ArrayList<Gateway>();
 	
 	public ComplexDetails() {}
 	public ComplexDetails(Complex complex, List<Unit> units) {
@@ -16,6 +17,12 @@ public class ComplexDetails {
 		this.units.addAll(units);
 	}
 	
+	public List<Gateway> getAvailableGateways() {
+		return availableGateways;
+	}
+	public void setAvailableGateways(List<Gateway> availableGateways) {
+		this.availableGateways = availableGateways;
+	}
 	public SensorNetworkStatus getNetworkStatus() {
 		return networkStatus;
 	}

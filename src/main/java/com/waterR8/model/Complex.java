@@ -1,5 +1,8 @@
 package com.waterR8.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Complex {
 	int id;
 	int company;
@@ -16,13 +19,14 @@ public class Complex {
 	int lotSize;
 	int floors;
 	String notes;
+	Gateway gateway;
 	
 	
 	public Complex() {}
 	
-	public Complex(int id, int company, String complexName, String address, String city, 
+	public Complex(int id, int company, String complexName,String address, String city, 
 			String state, String zip, String phone, String email, int buildingCount,String constructionType,
-			String floorType, int lotSize, int floors, String notes) {
+			String floorType, int lotSize, int floors, String notes, Gateway gateway) {
 		
 		this.id = id;
 		this.company = company;
@@ -39,6 +43,15 @@ public class Complex {
 		this.lotSize = lotSize;
 		this.floors = floors;
 		this.notes = notes;
+		this.gateway = gateway;
+	}
+
+	public Gateway getGateway() {
+		return gateway;
+	}
+
+	public void setGateway(Gateway gateway) {
+		this.gateway = gateway;
 	}
 
 	public int getId() {
