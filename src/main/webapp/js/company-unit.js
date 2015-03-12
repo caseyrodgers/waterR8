@@ -80,7 +80,7 @@ function showSelectGatewayDialog() {
 		if(!gws) {
 			gws = [];
 		}
-		gws[gws.length] = {id:0,macAddress:'No Gateway'};
+		gws[gws.length] = {id:0,sn:0,label: 'No Gateway'};
 		
 		$.ajax({url: "partials/select_gateway.html",error:_errorHandler})
 		.then(function(html) {
@@ -107,7 +107,7 @@ function showSelectGateway(gateways, html) {
         			doSaveGateway(dataModel.selectedGateway(), function(x) {
         				
         				// add to existing model
-        			    var newGateway = {id:x.id, macAddress: x.macAddress, ipAddress: x.ipAddress};
+        			    var newGateway = {id:x.id, sn:x.sn, macAddress: x.macAddress, ipAddress: x.ipAddress};
         			    _dataModel.gateway(newGateway);
 
         				bootbox.hideAll();	

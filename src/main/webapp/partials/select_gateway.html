@@ -1,8 +1,15 @@
 <div class="bootbox-body" id='select-gateway'>
 	<div class="_panel panel-default">
 		<div class='panel-body'>
-           <select data-bind='options: availableGateways, optionsText: function(x) {return x.macAddress}, value:selectedGateway' class="form-control" name="gateway"
+		
+            <div class="form-group">
+			    <label for="complexName" class="control-label col-xs-11">Gateway Serial Number:</label>
+				<div class="col-xs-10">
+                   <select name='complexName' data-bind='options: availableGateways, optionsText: function(x) {return x.sn?x.sn:x.label}, value:selectedGateway' class="form-control" name="gateway"
                   placeholder="Gateway"></select>
+					</div>
+				</div>
+		
 		</div>
 	</div>
  </div>

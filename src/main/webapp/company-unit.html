@@ -99,9 +99,9 @@
 						<div class="form-group" >
 							<label for="gateway" class="control-label col-xs-2">Gateway</label>
 							<div class="col-xs-10" >
-							    <input data-bind='click: selectGateway, value: gateway().macAddress' 
+							    <input data-bind='click: selectGateway, value: gateway().sn>0?gateway().sn:"No Gateway"' 
 							            readonly='readyonly' type="text" class="form-control" name="gateway"
-									placeholder="Gateway Mac Address">
+									placeholder="Gateway Serial Number">
 							</div>
 						</div>
 						
