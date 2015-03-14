@@ -34,6 +34,7 @@ function loadDataIntoModels(dataIn) {
 		 this.complexName = data.complexName;
 		 
 		 var cons = dataIn.contacts['@items'];
+		 cons = cons?cons:[];
 		 this.contacts = ko.observableArray();
 		 for(var i=0;i<cons.length;i++) {
 			 var contact = cons[i];
@@ -126,6 +127,7 @@ function createContact() {
 		this.fullName = ko.observable();
 		this.phone = ko.observable();
 		this.emailAddress = ko.observable();
+		this.notifyOnError = ko.observable(true);
 		
 		this.rowClicked = function(x) {
 			alert("x: " + x);
@@ -151,12 +153,13 @@ function createContact() {
                     			complex: _complexId,
                     			fullName: dataModel.fullName(),
                     			phone: dataModel.phone(),
-                    			emailAddress:dataModel.emailAddress()
+                    			emailAddress:dataModel.emailAddress(),
+                    			notifyOnError: dataModel.notifyOnError()
                     	};
                     	var serverUrl = "/api/v1/complex/contacts/add";
                     	saveDataToServer(contactData, serverUrl, function(pk) {
-                    		contactData.id = pk;
-                    		_dataModel.contacts.push(contactData);
+                    		dataModel.id = pk;
+                    		_dataModel.contacts.push(dataModel);
 	                    	bootbox.hideAll();
                 		}); 
             		}
