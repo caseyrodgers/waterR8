@@ -1,13 +1,16 @@
 package com.waterR8.server.dao;
 
 import java.sql.Connection;
+import java.util.List;
 
 import junit.framework.TestCase;
 
 import com.waterR8.model.Company;
 import com.waterR8.model.CompanyDetails;
 import com.waterR8.model.CompanyNetworkMap;
+import com.waterR8.model.ComplexContact;
 import com.waterR8.model.ComplexDetails;
+import com.waterR8.model.ContactsDetail;
 import com.waterR8.model.SensorDetails;
 import com.waterR8.model.SensorNetworkStatus;
 import com.waterR8.model.UnitDetails;
@@ -98,5 +101,12 @@ public class CompanyDao_Test extends TestCase {
 		assertTrue(details.getCompany().getId() > 0);
 		assertTrue(details.getSensor().getId() > 0);
 		assertTrue(details.getSensor().getRole() != 0);
+	}
+	
+	public void testGetContacts() throws Exception {
+		ContactsDetail details = CompanyDao.getInstance().getComplexContacts(COMPLEX);
+		assertTrue(details != null);
+		assertTrue(details.getContacts() != null);
+		
 	}
 }

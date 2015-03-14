@@ -17,6 +17,7 @@ import com.cedarsoftware.util.io.JsonReader;
 import com.cedarsoftware.util.io.JsonWriter;
 import com.waterR8.model.Company;
 import com.waterR8.model.Complex;
+import com.waterR8.model.ComplexContact;
 import com.waterR8.model.Gateway;
 import com.waterR8.model.Sensor;
 import com.waterR8.model.SequenceInfo;
@@ -264,6 +265,41 @@ public class CompanyRest implements Serializable {
     public String doGetAvailableGateways(@PathParam("complexId") int complexId) throws Exception {
     	return JsonWriter.objectToJson(GatewayDao.getInstance().getAvailableGateways(complexId));
     }
+
+    @GET
+    @Path("complex/contacts/{complexId}") 
+    public String doGetComplexContacts(@PathParam("complexId") int complexId) throws Exception {
+    	return JsonWriter.objectToJson(CompanyDao.getInstance().getComplexContacts(complexId));
+    }
+    
+    @POST
+    @Path("complex/contacts/add") 
+    public String doAddComplexContact(String jsonData) throws Exception {
+    	return doAddComplexContactAux(jsonData);
+    }
+    
+    private String doAddComplexContactAux(String jsonData) throws Exception {
+    	JSONObject jo = new JSONObject(jsonData);
+    	jo.put("@type", "com.waterR8.model.ComplexContact");
+    	ComplexContact contact = (ComplexContact)JsonReader.jsonToJava(jo.toString());
+        
+    	return JsonWriter.objectToJson(CompanyDao.getInstance().addComplexContact(contact));
+    }
+    
+    @POST
+    @Path("complex/contacts/update") 
+    public String doUpdateComplexContact(String jsonData) throws Exception {
+    	return doUpdateComplexContactAux(jsonData);
+    }
+    
+    private String doUpdateComplexContactAux(String jsonData) throws Exception {
+    	JSONObject jo = new JSONObject(jsonData);
+    	jo.put("@type", "com.waterR8.model.ComplexContact");
+    	ComplexContact contact = (ComplexContact)JsonReader.jsonToJava(jo.toString());
+        
+    	return JsonWriter.objectToJson(CompanyDao.getInstance().updateComplexContact(contact));
+    }
+    
 
 }
 

@@ -1,5 +1,8 @@
 $(document).ready(
-		getData()
+		function() {
+		   $('#network-map-btn').attr('style', 'display: none');
+	       getData();
+	     }
 );
 
 function getData() {

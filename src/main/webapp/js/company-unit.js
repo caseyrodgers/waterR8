@@ -1,6 +1,4 @@
-$(document).ready(
-		getData()
-);
+$(document).ready(getData());
 
 function getData() {
 	
@@ -10,6 +8,8 @@ function getData() {
 		return;
 	}
 	
+	
+	/** remove the header */
 	$.ajax({url: "/api/v1/complex/" + id,error:_errorHandler})
 	.then(function(data) {
 		loadDataIntoModels(data);
@@ -60,9 +60,9 @@ function loadDataIntoModels(data) {
 		 this.showNetworkMap = function() {
 			 _showNetworkMap('complex', 'Complex ' + _dataModel.complex.complexName, _dataModel.complex.id);
 		 }
-		 
-		 this.manageGateways = function() {
-			 _manageGateways();
+
+		 this.showNotifications = function() {
+			 document.location.href = 'complex-contacts.html?id=' + _complexId;
 		 }
 
 	 }
@@ -199,3 +199,84 @@ function createComplex() {
 	  });
        
 }
+
+
+
+
+function _showNotifications() {
+	$.ajax({url: "/api/v1/complex/notifications/" + _complexId, error: _errorHandler})
+	.then(function(data) {
+		
+		$.ajax({url: "partials/notifications.html",error:_errorHandler})
+		.then(function(html) {
+			showNotificationsDialog(data, html);
+		});
+		
+	});
+}
+function showNotificationsDialog(notifications, html) {
+	
+    function MyViewModel() {
+    	var data = {contacts: [{fullName:'test casey', phone:'123-123-1234', emailAddress:'abc west street'}]};
+    	this.username = ko.observable('test');
+    	this.contacts = ko.observableArray(data.contacts);
+	}
+	var dataModel = new MyViewModel();
+	 
+	bootbox.dialog({
+        title: 'Notifications' ,
+        message: html,
+        buttons: {
+        	close: {
+        		label: "Close",
+        		callback: function (x) {
+        				return true;
+        		}
+        	}
+        }
+    });
+	
+	
+	$('#complex-notifications td a').editable({
+		type: 'text',
+		title: 'Value',
+		url: function(x) {alert('value set');}
+	});
+	
+	 //make status editable
+    $('#username').editable({
+        type: 'select',
+        title: 'Select status',
+        placement: 'right',
+        value: 2,
+        url: function(x) {
+        	alert('the value: ' + x);
+        },
+        source: [
+            {value: 1, text: 'status 1'},
+            {value: 2, text: 'status 2'},
+            {value: 3, text: 'status 3'}
+        ]
+        /*
+        //uncomment these lines to send data on server
+        ,pk: 1
+        ,url: '/post'
+        */
+    });
+    
+	 ko.applyBindings(dataModel, document.getElementById('complex-notifications'));
+}
+
+
+function doSaveNotify(x, callbackOnSuccess) {
+	
+	var update = {gateway: x, complex: _complexId};
+	var dataJson = JSON.stringify(update);
+	$.ajax({url: "/api/v1/complex/gateway/update", type: "POST", data: dataJson, error: _errorHandler})
+	.then(function(data) {
+		callbackOnSuccess(x);
+	});
+}
+
+
+
