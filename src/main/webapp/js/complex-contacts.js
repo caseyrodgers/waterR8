@@ -30,6 +30,7 @@ function loadDataIntoModels(dataIn) {
 		 this.emailAddress = '';
 		 this.phone = '';
 		 this.notifyOnError = '';
+		 this.id = null;
 		 
 		 this.complexName = data.complexName;
 		 
@@ -53,12 +54,6 @@ function loadDataIntoModels(dataIn) {
 		 
 		 this.rowClicked = function(x) {
 			 editContact(x);
-		 }
-		 this.deleteRecord = function(x) {
-			 verifyDelete('Contact', function() {
-				 doDeleteRecord(x, "/api/v1/complex/contact/delete/" + _dataModel.unit.id, 
-						 function() { _gotoApp_Complex() });
-			 });
 		 }
 		 
 		 this.updateRecord = function(rec2Up) {
@@ -87,6 +82,23 @@ var formHtml = _getFormHtml();
         	cancel: {
         		label: "Cancel"
         	},
+        	delete: {
+        		label: 'Delete',
+        		className: 'btn-danger',
+        		callback: function() {
+       			 verifyDelete('Contact', function() {
+    				 doDeleteRecord(c, "/api/v1/complex/contacts/delete/" + c.id, 
+    						 function() { 
+    					  
+    					    // remove delete record from contact list
+    					 
+    					 _dataModel.contacts.remove(c);
+    					 
+    				 });
+    			 });
+        			
+        		}
+        	},
             success: {
                 label: "Save",
                 className: "btn-success",
@@ -111,6 +123,7 @@ var formHtml = _getFormHtml();
                 	return false;
                 }
             }
+        	
         }
     });
 
@@ -143,7 +156,7 @@ function createContact() {
         		label: "Cancel"
         	},
             success: {
-                label: "Save",
+                label: "Add Contact",
                 className: "btn-success",
                 callback: function () {
                 	
