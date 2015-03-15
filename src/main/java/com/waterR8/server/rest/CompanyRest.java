@@ -272,6 +272,12 @@ public class CompanyRest implements Serializable {
     	return JsonWriter.objectToJson(CompanyDao.getInstance().getComplexContacts(complexId));
     }
     
+    @GET
+    @Path("complex/contacts/delete/{contactId}") 
+    public String doDeleteComplexContact(@PathParam("contactId") int contactId) throws Exception {
+    	return JsonWriter.objectToJson(CompanyDao.getInstance().deleteComplexContact(contactId));
+    }
+    
     @POST
     @Path("complex/contacts/add") 
     public String doAddComplexContact(String jsonData) throws Exception {

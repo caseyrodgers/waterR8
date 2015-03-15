@@ -1752,6 +1752,29 @@ public class CompanyDao {
 			SqlUtilities.releaseResources(null, null, conn);
 		}
 	}
+
+	public RecordOperation deleteComplexContact(int contactId) throws Exception {
+		Connection conn = null;
+		PreparedStatement st = null;
+		try {
+
+			conn = ConnectionPool.getConnection();
+			String sql = 
+					"delete from  contacts where id = ?";
+			
+			st = conn.prepareStatement(sql);
+			st.setInt(1, contactId);
+			int cnt = st.executeUpdate();
+			String msg = null;
+			if (cnt != 1) {
+				msg = "Contact record was not deleted";
+			}
+			return new RecordOperation(CrudType.DELETE, contactId, msg);
+			
+		} finally {
+			SqlUtilities.releaseResources(null, null, conn);
+		}		
+	}
 	
 	
 }
