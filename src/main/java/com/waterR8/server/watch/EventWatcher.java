@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import com.waterR8.model.EventCheck;
 import com.waterR8.server.ConnectionPool;
 import com.waterR8.util.SqlUtilities;
+import com.waterR8.util.WaterR8Properties;
 
 
 /** Class to monitor DB events looking for anomalies
@@ -21,17 +22,16 @@ public class EventWatcher {
 	static Logger __logger = Logger.getLogger(EventWatcher.class.getName());
 	
 	private static EventWatcher __instance;
-	public static EventWatcher getInstance() throws Exception {
+	public static EventWatcher getLastInstance() throws Exception {
 		if(__instance == null) {
 			__instance = new EventWatcher();
 		}
 		return __instance;
 	}
 	
-	private EventWatcher() {
+	public EventWatcher() throws Exception {
 		
 		installStandardChecks();
-		
 		startWatcherThread();
 	}
 
@@ -45,13 +45,13 @@ public class EventWatcher {
 
 	private List<EventCheck> registeredChecks = new ArrayList<EventCheck>();
 	
-	static final int WATCH_INTERVAL=1000*10;   // 10 seconds 
 	
-	private void startWatcherThread() {
+	private void startWatcherThread() throws Exception {
 		if(_watcherThread != null) {
 			_watcherThread.setStop(true);
 		}
-		_watcherThread = new MyThread(WATCH_INTERVAL) {
+		int interval = Integer.parseInt(WaterR8Properties.getInstance().getProperty("events.check.interval", Integer.toString(1000*60*10)));
+		_watcherThread = new MyThread(interval) {
 			
 			@Override
 			public void doRun() {
@@ -61,6 +61,7 @@ public class EventWatcher {
 				doDatabaseChecks();
 			}
 		};
+
 		_watcherThread.start();
 	}
 	
@@ -102,7 +103,6 @@ public class EventWatcher {
 		
 		public MyThread(int interval) {
 			this.interval = interval;
-			start();
 		}
 		
 		public void setStop(boolean stop) {
@@ -132,7 +132,7 @@ public class EventWatcher {
 	static public void main(String as[]) {
 		
 		try {
-			EventWatcher.getInstance();
+			new EventWatcher();
 		}
 		
 		catch(Exception e) {

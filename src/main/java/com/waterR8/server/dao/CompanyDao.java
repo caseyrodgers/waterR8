@@ -692,7 +692,7 @@ public class CompanyDao {
 			connection = ConnectionPool.getConnection();
 			String sql = "insert into complex(company, complex_name, address, city, state, zip "
 					+ ", phone, email, building_count, construction_type, floor_type, lot_size "
-					+ " , floors, notes) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+					+ " , floors, notes) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			ps = connection.prepareStatement(sql,
 					Statement.RETURN_GENERATED_KEYS);
 
@@ -710,7 +710,7 @@ public class CompanyDao {
 			ps.setInt(12, complex.getLotSize());
 			ps.setInt(13, complex.getFloors());
 			ps.setString(14, complex.getNotes());
-
+			
 			int cnt = ps.executeUpdate();
 			if (cnt != 1) {
 				throw new Exception(

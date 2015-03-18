@@ -41,6 +41,28 @@
         <session-timeout>1000</session-timeout>
      </session-config>
 
+
+	<servlet>
+		<servlet-name>WaterR8 Initialization Servlet</servlet-name>
+		<servlet-class>
+			com.waterR8.server.InitializationServlet
+		</servlet-class>
+	    <load-on-startup>1</load-on-startup>		
+	</servlet>
+	
+	<servlet>
+		<servlet-name>RestEasy</servlet-name>
+		<servlet-class>
+			org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher
+		</servlet-class>
+		<init-param>
+			<param-name>javax.ws.rs.Application</param-name>
+			<param-value>com.waterR8.server.WaterR8Application</param-value>
+		</init-param>
+	</servlet>
+	
+	
+
 	<servlet>
 		<servlet-name>RestEasy</servlet-name>
 		<servlet-class>

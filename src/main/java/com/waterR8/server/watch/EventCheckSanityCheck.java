@@ -41,7 +41,7 @@ public class EventCheckSanityCheck implements EventCheck {
 			return e.getMessage();
 		}
 		finally {
-			SqlUtilities.releaseResources(null,null, conn);
+			SqlUtilities.releaseResources(null,ps, null);
 		}
 
 		return null; // all good
