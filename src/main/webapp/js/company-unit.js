@@ -16,6 +16,13 @@ function getData() {
 	});
 }
 
+
+
+function handleNavigation(row) {
+	document.location.href='unit-sensor.html?id=' + row.id;
+}
+
+
 var _dataModel;
 var _companyId;
 var _complexId;
@@ -37,10 +44,6 @@ function loadDataIntoModels(data) {
 		 // this.gateway = ko.observable();
 		 this.selectGateway = function(x) {
 			 showSelectGatewayDialog();
-		 }
-		 
-		 this.rowClicked = function(x) {
-			 document.location.href='unit-sensor.html?id=' + x.id;
 		 }
 		 this.deleteRecord = function(x) {
 			 verifyDelete('Complex', function() {
@@ -68,6 +71,9 @@ function loadDataIntoModels(data) {
 	 }
 	 _dataModel = new MyViewModel();
 	 ko.applyBindings(_dataModel);
+	 
+	 _setupGrids();
+
 }
 
 

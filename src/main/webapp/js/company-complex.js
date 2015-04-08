@@ -18,6 +18,10 @@ function getData() {
 	});
 }
 
+function handleNavigation(row) {
+    document.location.href='company-unit.html?id=' + row.id;
+}
+
 var _dataModel;
 var _companyId;
 function loadDataIntoModels(data) {
@@ -30,9 +34,6 @@ function loadDataIntoModels(data) {
 		 this.company = data.company;
 		 this.networkStatus = data.networkStatus;
 
-		 this.rowClicked = function(x) {
-			 document.location.href='company-unit.html?id=' + x.id;
-		 };
 		 this.deleteRecord = function(rec2Del) {
 			 verifyDelete('Company', function() {
 				 doDeleteRecord(rec2Del, "/api/v1/company/delete/" + data.company.id, function() {
@@ -55,6 +56,9 @@ function loadDataIntoModels(data) {
 	 
 	 _dataModel = new MyViewModel();
 	 ko.applyBindings(_dataModel);
+	 
+	 
+	 _setupGrids();
 }
 
 

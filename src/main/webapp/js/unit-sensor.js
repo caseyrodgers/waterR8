@@ -1,6 +1,6 @@
-$(document).ready(
-		getData()
-);
+$(document).ready(function() {
+	getData();
+});
 
 function getData() {
 	
@@ -14,6 +14,19 @@ function getData() {
 	.then(function(data) {
 		loadDataIntoModels(data);
 	});
+}
+
+function handleNavigation(row) {
+	 var r = row.roleId;
+	 if(_getRoleName(r) == 'Flow Timer') {
+		 document.location.href='sensor-events.html?id=' + row.id;
+	 }
+	 else if(_getRoleName(r) == 'Repeater') {
+		 document.location.href='repeater-events.html?id=' + row.id;
+	 }
+	 else {
+		 showNotify('no such role: ' + r);
+	 }
 }
 
 /** override global error handler aux function
@@ -54,17 +67,7 @@ function loadDataIntoModels(dataIn) {
 		 this.unit = data.unit;
 		 this.networkStatus = data.networkStatus;
 		 this.rowClicked = function(x) {
-			 var r = x.role;
-			 if(_getRoleName(r) == 'Flow Timer') {
-				 document.location.href='sensor-events.html?id=' + x.id;
-			 }
-			 else if(_getRoleName(r) == 'Repeater') {
-				 document.location.href='repeater-events.html?id=' + x.id;
-			 }
-			 else {
-				 showNotify('no such role: ' + r);
-			 }
-			 
+			 handleNavigation(x);
 		 }
 		 this.deleteRecord = function(x) {
 			 verifyDelete('Unit', function() {
@@ -86,6 +89,8 @@ function loadDataIntoModels(dataIn) {
 	 }
 	 _dataModel = new MyViewModel(dataIn);
 	 ko.applyBindings(_dataModel);
+	 
+	 _setupGrids();
 }
 
 var _addFormHtml = null;

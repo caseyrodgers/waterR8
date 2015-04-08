@@ -15,8 +15,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.management.Notification;
-
 import org.joda.time.DateTime;
 
 import com.waterR8.model.AvailableSensor;
@@ -33,7 +31,6 @@ import com.waterR8.model.NetworkDevice.Role;
 import com.waterR8.model.NetworkGraphNode;
 import com.waterR8.model.NetworkGraphNode.Type;
 import com.waterR8.model.NetworkNode;
-import com.waterR8.model.Notifications;
 import com.waterR8.model.RecordOperation;
 import com.waterR8.model.RecordOperation.CrudType;
 import com.waterR8.model.RepeaterInfo;

@@ -435,3 +435,15 @@ function _requestNetworkMap() {
 		showNotify("Request was made: " + data);
 	});	
 }
+
+
+/** after data read event */
+function _setupGrids() {
+	 var ops = {rowCount: 25};
+	 $(".wr8-table").bootgrid(ops)
+	     .on(
+		    "click.rs.jquery.bootgrid",
+				function(e1, cols, row) {
+						handleNavigation(row);
+				});
+}

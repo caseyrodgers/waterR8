@@ -69,6 +69,8 @@ function loadDataIntoModels(dataIn) {
 	 }
 	 _dataModel = new MyViewModel(dataIn);
 	 ko.applyBindings(_dataModel);
+	 
+	 _setupGrids();
 }
 
 

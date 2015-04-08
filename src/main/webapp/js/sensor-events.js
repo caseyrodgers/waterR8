@@ -70,6 +70,9 @@ function loadDataIntoModels(dataIn) {
 			 _dataModel.events.push(dataIn.events[i]);
 		 }
 	 }
+	 
+	 
+	 _setupGrids();
 }
 
 

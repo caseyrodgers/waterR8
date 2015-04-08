@@ -1,0 +1,26 @@
+<div class="bootbox-body" id='complex-notifications'>
+	<div class="_panel panel-default">
+		<div class='panel-body'>
+			<h1>Contacts</h1>
+					<table class="table table-striped table-hover">
+						<thead>
+							<tr>
+								<th width="25%">Contact Name</th>
+								<th width="25%">Phone Number</th>
+								<th width="25%">Email Address</th>
+							</tr>
+																
+						</thead>
+						
+						
+						
+						<tbody data-bind="template: {foreach: contacts,  as: 'c'}">
+						        <td><a href="#" data-bind='text: c.fullName'></a></td>		
+                                <td data-bind="text: c.phone"></td>
+                                <td data-bind="text: c.emailAddress"></td>
+							</tr>
+						</tbody>
+					</table>
+		</div>
+	</div>
+ </div>
