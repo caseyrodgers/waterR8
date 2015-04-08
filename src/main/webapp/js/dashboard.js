@@ -5,6 +5,12 @@ $(document).ready(
 	     }
 );
 
+
+function handleNavigation(row) {
+	document.location.href='company-complex.html?id=' + row.id;	
+}
+
+
 function getData() {
 	$.ajax({url: "/api/v1/companies", error: _errorHandler})
 	.then(function(data) {
@@ -68,12 +74,11 @@ function loadDataIntoModels(data) {
 		 this.deleteCompany = function(x) {
 			 alert('deleting company: ' + x);
 		 }
-		 this.companyClicked = function(x) {
-			 document.location.href='company-complex.html?id=' + x.id;
-		 }
 	 }
 	 _companyData = new MyViewModel();
 	 ko.applyBindings(_companyData);
+	 
+	 _setupGrids();
 }
 
 

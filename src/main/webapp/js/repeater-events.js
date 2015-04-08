@@ -21,6 +21,12 @@ var _companyId;
 var _complexId;
 var _unitId;
 
+
+function handleNavigation(row) {
+    document.location.href='sensor-events.html?id=' + row.id;
+}
+
+
 function loadDataIntoModels(dataIn) {
 	 function MyViewModel(data) {
 		 
@@ -35,9 +41,6 @@ function loadDataIntoModels(dataIn) {
 		 this.complex = data.complex;
 		 this.unit = data.unit;
 		 this.networkStatus = data.networkStatus;
-		 this.rowClicked = function(x) {
-			 document.location.href='sensor-events.html?id=' + x.id;
-		 }
 		 this.deleteRecord = function() {
 			 verifyDelete('Sensor', function() {
 				 doDeleteRecord(_dataModel.sensor.id, "/api/v1/sensor/delete/" + _dataModel.sensor.id, function() {
