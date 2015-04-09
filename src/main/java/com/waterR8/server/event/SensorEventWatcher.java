@@ -127,7 +127,7 @@ public class SensorEventWatcher {
 			String emailText = "The following sensor had a duration of 1 hour or more: ";
 			emailText += "\n\n";
 			
-			SensorDetails sd = CompanyDao.getInstance().getSensorDetail(event.getData().getId());
+			SensorDetails sd = CompanyDao.getInstance().getSensorDetail(event.getData().getSrc());
 			emailText += "Unit Number: " + sd.getUnit().getUnitNumber() + "\n";
 			emailText += "Sensor Serial Number: " + sd.getSensor().getSensor();
 			emailText += "Duration: " + event.getData().getDur();
