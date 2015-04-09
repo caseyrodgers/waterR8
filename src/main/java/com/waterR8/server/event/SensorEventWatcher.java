@@ -132,6 +132,7 @@ public class SensorEventWatcher {
 			
 			for(Sensor sen: sensors) {
 				SensorDetails sd = CompanyDao.getInstance().getSensorDetail(sen.getId());
+				emailText += "Event Time: " + event.getData().getTimeStamp() + "\n";
 				emailText += "Unit Number: " + sd.getUnit().getUnitNumber() + "\n";
 				emailText += "Sensor Serial Number: " + sd.getSensor().getSensor() + "\n";
 				emailText += "Duration: " + event.getData().getDur() + "\n\n";
