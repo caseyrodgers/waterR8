@@ -34,13 +34,12 @@ public class MailManager {
 					}
 				});
 		try {
-			String msgBody = "...";
 			try {
 			    Message msg = new MimeMessage(session);
 			    msg.setFrom(new InternetAddress(from, "WaterR8 Admin"));
 			    msg.addRecipient(Message.RecipientType.TO,    new InternetAddress(emailToSendTo, "WaterR8 Client"));
 			    msg.setSubject(subject);
-			    msg.setText(msgBody);
+			    msg.setText(messageText);
 			    Transport.send(msg);
 	
 			} catch(Exception e) {
