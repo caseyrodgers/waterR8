@@ -137,7 +137,7 @@ public class SensorEventWatcher {
 				emailText += "Sensor Serial Number: " + sd.getSensor().getSensor() + "\n";
 				emailText += "Duration: " + event.getData().getDur() + "\n\n";
 				
-				MailManager.getInstance().sendEmail("caseyrodgers@gmail.com","admin@waterr8.com",emailSubject, emailText);
+				MailManager.getInstance().sendEmail(contact.getEmailAddress(),"admin@waterr8.com",emailSubject, emailText);
 			}
 			
 			markEventAsBeingSentToContact(conn, event, contact);
