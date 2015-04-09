@@ -11,6 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.waterR8.model.ComplexContact;
+import com.waterR8.model.Sensor;
 import com.waterR8.model.SensorDetails;
 import com.waterR8.model.SensorEvent;
 import com.waterR8.model.SensorEvent.EventType;
@@ -127,12 +128,16 @@ public class SensorEventWatcher {
 			String emailText = "The following sensor had a duration of 1 hour or more: ";
 			emailText += "\n\n";
 			
-			SensorDetails sd = CompanyDao.getInstance().getSensorDetail(event.getData().getSrc());
-			emailText += "Unit Number: " + sd.getUnit().getUnitNumber() + "\n";
-			emailText += "Sensor Serial Number: " + sd.getSensor().getSensor();
-			emailText += "Duration: " + event.getData().getDur();
+			List<Sensor> sensors = CompanyDao.getInstance().getSensorAssignments(conn, event.getData().getSrc());
 			
-			MailManager.getInstance().sendEmail("caseyrodgers@gmail.com","admin@waterr8.com",emailSubject, emailText);
+			for(Sensor sen: sensors) {
+				SensorDetails sd = CompanyDao.getInstance().getSensorDetail(sen.getId());
+				emailText += "Unit Number: " + sd.getUnit().getUnitNumber() + "\n";
+				emailText += "Sensor Serial Number: " + sd.getSensor().getSensor() + "\n";
+				emailText += "Duration: " + event.getData().getDur() + "\n\n";
+				
+				MailManager.getInstance().sendEmail("caseyrodgers@gmail.com","admin@waterr8.com",emailSubject, emailText);
+			}
 			
 			markEventAsBeingSentToContact(conn, event, contact);
 		}

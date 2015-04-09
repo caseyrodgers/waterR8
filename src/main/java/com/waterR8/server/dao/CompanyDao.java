@@ -457,6 +457,23 @@ public class CompanyDao {
 			SqlUtilities.releaseResources(null, ps, null);
 		}
 	}
+	
+	public List<Sensor> getSensorAssignments(Connection connection, int serialNumber) throws Exception {
+		List<Sensor> sensors = new ArrayList<Sensor>();
+		PreparedStatement ps = null;
+		try {
+			String sql = "select * from sensor_assignment where sn = ?";
+			ps = connection.prepareStatement(sql);
+			ps.setInt(1, serialNumber);
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()) {
+				sensors.add(getSensorRecord(rs));
+			}
+			return sensors;
+		} finally {
+			SqlUtilities.releaseResources(null, ps, null);
+		}
+	}
 
 	private Sensor getSensorRecord(ResultSet rs) throws Exception {
 		int ssn = rs.getInt("sn");
