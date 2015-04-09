@@ -11,11 +11,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.waterR8.model.ComplexContact;
+import com.waterR8.model.SensorDetails;
 import com.waterR8.model.SensorEvent;
 import com.waterR8.model.SensorEvent.EventType;
 import com.waterR8.model.SensorRecord;
 import com.waterR8.server.ConnectionPool;
 import com.waterR8.server.dao.CompanyDao;
+import com.waterR8.server.mail.MailManager;
 import com.waterR8.util.SqlUtilities;
 
 /** Monitor sensor events and notify
@@ -120,6 +122,17 @@ public class SensorEventWatcher {
 	private void deliverEventToContacts(Connection conn, SensorEvent event,List<ComplexContact> contacts) throws Exception {
 		for(ComplexContact contact: contacts) {
 			__logger.info("Sending event notification '" + event.getData().getId() + "' to: " + contact.getEmailAddress());
+			
+			String emailSubject = "WaterR8 Event Alert: " + new Date();
+			String emailText = "The following sensor had a duration of 1 hour or more: ";
+			emailText += "\n\n";
+			
+			SensorDetails sd = CompanyDao.getInstance().getSensorDetail(event.getData().getId());
+			emailText += "Unit Number: " + sd.getUnit().getUnitNumber() + "\n";
+			emailText += "Sensor Serial Number: " + sd.getSensor().getSensor();
+			emailText += "Duration: " + event.getData().getDur();
+			
+			MailManager.getInstance().sendEmail("caseyrodgers@gmail.com","admin@waterr8.com",emailSubject, emailText);
 			
 			markEventAsBeingSentToContact(conn, event, contact);
 		}
