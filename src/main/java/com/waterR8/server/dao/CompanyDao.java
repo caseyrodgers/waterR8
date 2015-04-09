@@ -36,7 +36,7 @@ import com.waterR8.model.RecordOperation.CrudType;
 import com.waterR8.model.RepeaterInfo;
 import com.waterR8.model.Sensor;
 import com.waterR8.model.SensorDetails;
-import com.waterR8.model.SensorEvent;
+import com.waterR8.model.SensorRecord;
 import com.waterR8.model.SensorNetworkStatus;
 import com.waterR8.model.SeqHit;
 import com.waterR8.model.SequenceInfo;
@@ -540,9 +540,9 @@ public class CompanyDao {
 																			// DateFormat.SHORT);
 
 	// look for events with this src;
-	private List<SensorEvent> getSensorEvents(Connection connection,
+	private List<SensorRecord> getSensorEvents(Connection connection,
 			Sensor sensor) throws Exception {
-		List<SensorEvent> events = new ArrayList<SensorEvent>();
+		List<SensorRecord> events = new ArrayList<SensorRecord>();
 		try {
 			PreparedStatement ps = null;
 			try {
@@ -563,7 +563,7 @@ public class CompanyDao {
 		return events;
 	}
 
-	private SensorEvent getSensorEventRecord(ResultSet rs) throws Exception {
+	public SensorRecord getSensorEventRecord(ResultSet rs) throws Exception {
 		int src = rs.getInt("src");
 		int seq = rs.getInt("seq");
 		int hopCnt = rs.getInt("hopcnt");
@@ -576,7 +576,7 @@ public class CompanyDao {
 		int rssiRcv = rs.getInt("rssi_rcv");
 
 		String timeStamp = _dateFormat.format(new Date(time));
-		return new SensorEvent(rs.getInt("id"), json, type, timeStamp, time,
+		return new SensorRecord(rs.getInt("id"), json, type, timeStamp, time,
 				src, seq, hopCnt, first, battery, dur, rssiRcv);
 	}
 
@@ -1183,7 +1183,7 @@ public class CompanyDao {
 
 			Map<Integer, List<Sensor>> hopMap = new HashMap<Integer, List<Sensor>>();
 
-			List<SensorEvent> events = getSensorEventsForSeq(connection,
+			List<SensorRecord> events = getSensorEventsForSeq(connection,
 					companyId, lastBeaconSeq);
 
 			Company company = getCompany(companyId);
@@ -1199,8 +1199,8 @@ public class CompanyDao {
 
 	private void buildNetworkTree(List<NetworkNode> network,
 			NetworkGraphNode parent, int parentSrc, int hop,
-			List<SensorEvent> events) {
-		for (SensorEvent e : events) {
+			List<SensorRecord> events) {
+		for (SensorRecord e : events) {
 			// System.out.println("Checking: hop: " + hop + ", " +
 			// " parentSrc: " + parentSrc + ", src: " + e.getSrc());
 
@@ -1243,9 +1243,9 @@ public class CompanyDao {
 		}
 	}
 
-	private String getTimeLastEvent(List<SensorEvent> events, int src) {
+	private String getTimeLastEvent(List<SensorRecord> events, int src) {
 		long newestTs = 0;
-		for (SensorEvent e : events) {
+		for (SensorRecord e : events) {
 			if (e.getSrc() == src) {
 				long ts = e.getTime();
 				if (ts > newestTs) {
@@ -1258,7 +1258,7 @@ public class CompanyDao {
 				: "No Events";
 	}
 
-	private boolean alreadyInList(SensorEvent e, List<NetworkNode> network) {
+	private boolean alreadyInList(SensorRecord e, List<NetworkNode> network) {
 		for (NetworkNode n : network) {
 			if (n.getDeviceChild().getSrc() == e.getSrc()
 					|| n.getDeviceParent().getSrc() == e.getSrc()) {
@@ -1268,10 +1268,10 @@ public class CompanyDao {
 		return false;
 	}
 
-	private List<SensorEvent> getSensorEventsForSeq(Connection connection,
+	private List<SensorRecord> getSensorEventsForSeq(Connection connection,
 			int companyId, int lastBeaconSeq) throws Exception {
 		PreparedStatement ps = null;
-		List<SensorEvent> events = new ArrayList<SensorEvent>();
+		List<SensorRecord> events = new ArrayList<SensorRecord>();
 		try {
 			String sql = "select e.* " + "from events e "
 					+ "  join sensor_assignment sa on sa.sn  = e.src "
@@ -1662,8 +1662,7 @@ public class CompanyDao {
 			ResultSet rs = st.executeQuery();
 
 			while (rs.next()) {
-				list.add(new ComplexContact(rs.getInt("id"), complexId, rs.getString("full_name"), rs
-						.getString("phone_number"), rs.getString("email_address"), rs.getBoolean("notify_on_error")));
+				list.add(getComplexContactRecord(rs));
 			}
 		} finally {
 			SqlUtilities.releaseResources(null, null, conn);
@@ -1679,6 +1678,11 @@ public class CompanyDao {
 		ContactsDetail details = new ContactsDetail(list,complexId, companyId, complexName);
 		
 		return details;
+	}
+
+	public ComplexContact getComplexContactRecord(ResultSet rs) throws Exception {
+		return new ComplexContact(rs.getInt("id"), rs.getInt("complex"), rs.getString("full_name"), rs
+				.getString("phone_number"), rs.getString("email_address"), rs.getBoolean("notify_on_error"));		
 	}
 
 	public RecordOperation addComplexContact(ComplexContact contact)

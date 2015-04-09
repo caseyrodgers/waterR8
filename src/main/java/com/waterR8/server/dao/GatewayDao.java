@@ -60,7 +60,13 @@ public class GatewayDao {
 	}
 
 
-	
+	/** Register a new GatewayCommand
+	 * 
+	 *  
+	 * @param command
+	 * @return
+	 * @throws Exception
+	 */
 	public GatewayCommandResponse makeCommandRequest(GatewayCommand command) throws Exception {
 		
 		
@@ -191,6 +197,13 @@ public class GatewayDao {
 		}
 	}
 
+	/** Set the serialnumber in the gateway table
+	 * 
+	 * @param complexId
+	 * @param gateway
+	 * @return
+	 * @throws Exception
+	 */
 	public RecordOperation updateComplexGateway(int complexId, Gateway gateway) throws Exception {
 		Connection conn=null;
 		PreparedStatement ps=null;

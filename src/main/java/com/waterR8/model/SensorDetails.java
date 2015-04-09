@@ -6,7 +6,7 @@ import java.util.List;
 public class SensorDetails {
 
 	Sensor sensor;
-	List<SensorEvent> events = new ArrayList<SensorEvent>();
+	List<SensorRecord> events = new ArrayList<SensorRecord>();
 	private Company company;
 	Complex complex;
 	Unit unit;
@@ -26,11 +26,11 @@ public class SensorDetails {
 		this.sensor = sensor;
 	}
 
-	public List<SensorEvent> getEvents() {
+	public List<SensorRecord> getEvents() {
 		return events;
 	}
 
-	public void setEvents(List<SensorEvent> events) {
+	public void setEvents(List<SensorRecord> events) {
 		this.events = events;
 	}
 
